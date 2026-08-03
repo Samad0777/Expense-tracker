@@ -1,5 +1,6 @@
 import { EyeOff, Eye } from "lucide-react";
 import { useState } from "react";
+import { NavLink } from "react-router-dom";
 
 const Register = () => {
   const [showPassword, setShowPassword] = useState(true);
@@ -55,9 +56,9 @@ const Register = () => {
           </button>
           <h2 className="text-center">
             Already have an account?{" "}
-            <span className="cursor-pointer text-blue-900 underline">
+            <NavLink to="/login" className="cursor-pointer text-blue-900 underline">
               login
-            </span>
+            </NavLink>
           </h2>
         </form>
       </div>
