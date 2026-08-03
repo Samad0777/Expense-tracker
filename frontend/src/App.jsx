@@ -1,13 +1,13 @@
-import React from 'react'
-import Register from './pages/Register'
-
+import React from "react";
+import { RouterProvider } from "react-router-dom";
+import { router } from "./routes/AppRoutes";
 
 const App = () => {
   return (
     <>
-    <Register/>
+      <RouterProvider router={router} />
     </>
-  )
-}
+  );
+};
 
-export default App
+export default App;
