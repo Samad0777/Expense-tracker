@@ -7,7 +7,7 @@
 
   /* Background */
   --color-background: #f5f7fb;
-  --color-background-sidebar: #1A1D2E;
+  --color-background-sidebar: #1a1d2e;
   --color-surface: #ffffff;
 
   /* Sidebar */
@@ -16,6 +16,16 @@
   /* Text */
   --color-text-primary: #1f2939;
   --color-text-secondary: #70717c;
+
+  /* logo background */
+  --color-bg-first: #EAEDFC;
+  --color-bg-second: #E3F8EB;
+  --color-bg-third: #FEEDE3;
+
+  /* icons color  */
+  --color-text-first:#888BF4;
+  --color-text-second:#24C55F;
+  --color-text-third:#F87419;
 
   /* Status */
   --color-success: #22c55e;
