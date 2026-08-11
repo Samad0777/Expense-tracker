@@ -7,7 +7,7 @@ export const registerService = async (username, email, password) => {
       email,
       password,
     });
-    console.log(response.data)
+    console.log(response.data);
     return response.data;
   } catch (err) {
     throw err;
@@ -17,6 +17,15 @@ export const registerService = async (username, email, password) => {
 export const loginService = async (email, password) => {
   try {
     const response = await api.post("/auth/login", { email, password });
+    return response.data;
+  } catch (err) {
+    throw err;
+  }
+};
+
+export const getMeService = async () => {
+  try {
+    const response = await api.get("/auth/me");
     return response.data;
   } catch (err) {
     throw err;
