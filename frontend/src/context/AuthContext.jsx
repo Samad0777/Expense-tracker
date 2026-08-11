@@ -4,6 +4,7 @@ import {
   registerService,
   loginService,
   getMeService,
+  logoutService,
 } from "../services/auth.service";
 
 export const AuthContext = createContext();
@@ -31,7 +32,6 @@ const AuthContextProvider = ({ children }) => {
     try {
       const response = await loginService(email, password);
       setUser(response.data);
-      console.log(response);
       return response;
     } catch (err) {
       throw err;
@@ -52,6 +52,19 @@ const AuthContextProvider = ({ children }) => {
     }
   };
 
+  const logoutHandler = async () => {
+    setLoading(true);
+    try {
+      const response = await logoutService();
+      setUser(null);
+      return response;
+    } catch (err) {
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     getMeHandler();
   }, []);
@@ -65,6 +78,7 @@ const AuthContextProvider = ({ children }) => {
         loginHandler,
         getMeHandler,
         authChecking,
+        logoutHandler,
       }}
     >
       {children}
