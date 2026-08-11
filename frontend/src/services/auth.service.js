@@ -31,3 +31,12 @@ export const getMeService = async () => {
     throw err;
   }
 };
+
+export const logoutService = async () =>{
+  try{
+    const response = await api.post("/auth/logout");
+    return response.data;
+  }catch(err){
+    throw err;
+  }
+}
