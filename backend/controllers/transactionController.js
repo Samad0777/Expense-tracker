@@ -1,7 +1,7 @@
 // controllers/transactionController.js
 // Handles all CRUD operations for transactions
 // Every transaction is scoped to req.userId (set by authMiddleware)
-
+const mongoose = require("mongoose");
 const Transaction = require("../models/Transaction");
 
 // @route   GET /api/transactions
@@ -167,7 +167,7 @@ const updateTransaction = async (req, res) => {
     const transaction = await Transaction.findOneAndUpdate(
       { _id: req.params.id, userId: req.userId }, // only update own transaction
       { $set: updates }, // $set = partial update, won't touch other fields
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (!transaction) {
@@ -218,10 +218,60 @@ const deleteTransaction = async (req, res) => {
   }
 };
 
+// @route   GET /api/transactions/summary
+// Returns totalIncome, totalExpense, and balance for the logged-in user
+// Calculated using MongoDB aggregation (not fetched into JS and summed manually)
+const getTransactionSummary = async (req, res) => {
+  try {
+    const summary = await Transaction.aggregate([
+      // Only this user's transactions
+      // Note: aggregate() does NOT auto-cast strings to ObjectId like
+      // find()/findOne() do, so we cast req.userId manually here —
+      // otherwise this $match would silently return zero results.
+      { $match: { userId: new mongoose.Types.ObjectId(req.userId) } },
+      // Group by type (Income / Expense) and sum amounts for each
+      {
+        $group: {
+          _id: "$type",
+          total: { $sum: "$amount" },
+        },
+      },
+    ]);
+
+    // summary looks like: [{ _id: "Income", total: 5000 }, { _id: "Expense", total: 2000 }]
+    // Convert that into a simple object, defaulting to 0 if a type has no transactions yet
+    let totalIncome = 0;
+    let totalExpense = 0;
+
+    summary.forEach((item) => {
+      if (item._id === "Income") totalIncome = item.total;
+      if (item._id === "Expense") totalExpense = item.total;
+    });
+
+    const balance = totalIncome - totalExpense;
+
+    return res.status(200).json({
+      success: true,
+      message: "Transaction summary fetched successfully",
+      data: {
+        totalIncome,
+        totalExpense,
+        balance,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   getTransactions,
   getTransactionById,
   createTransaction,
   updateTransaction,
   deleteTransaction,
+  getTransactionSummary,
 };

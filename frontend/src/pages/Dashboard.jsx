@@ -1,17 +1,54 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Card from "../components/Ui/Card";
-import { TrendingUp,TrendingDown, Wallet } from "lucide-react";
+import { TrendingUp, TrendingDown, Wallet } from "lucide-react";
+import useTransactions from "../hook/useTransactions";
 
 const Dashboard = () => {
-  return (
-    <main className="p-4 bg-background h-screen">
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card title="Total Balance" amount="4,346.52" icon={Wallet} iconColor={"text-text-first"} iconBg={"bg-bg-first"}/>
-        <Card title="Total Income" amount="6,700" icon={TrendingUp}  iconColor={"text-text-second"} iconBg={"bg-bg-second"}/>
-        <Card title="Total Expenses" amount="2,353.48" icon={TrendingDown} iconColor={"text-text-third"} iconBg={"bg-bg-third"}/>
-      </div>
-    </main>
-  );
+  const { dashboardSummary, dashboardSummaryHandler, dashboardLoading } =
+    useTransactions();
+
+  useEffect(() => {
+    const fetchSummary = async () => {
+      await dashboardSummaryHandler();
+      console.log(dashboardSummary);
+    };
+    fetchSummary();
+  }, []);
+
+  if (dashboardLoading){
+    return (
+      <main className="h-screen flex items-center justify-center">
+        <h2 className="text-2xl">Fetching dashboard data...</h2>
+      </main>
+    )
+  }
+    return (
+      <main className="p-4 bg-background h-screen">
+        <div className="grid gap-4 md:grid-cols-2">
+          <Card
+            title="Net Balance"
+            amount={dashboardSummary.balance}
+            icon={Wallet}
+            iconColor={"text-text-first"}
+            iconBg={"bg-bg-first"}
+          />
+          <Card
+            title="Total Income"
+            amount={dashboardSummary.totalIncome}
+            icon={TrendingUp}
+            iconColor={"text-text-second"}
+            iconBg={"bg-bg-second"}
+          />
+          <Card
+            title="Total Expenses"
+            amount={dashboardSummary.totalExpense}
+            icon={TrendingDown}
+            iconColor={"text-text-third"}
+            iconBg={"bg-bg-third"}
+          />
+        </div>
+      </main>
+    );
 };
 
 export default Dashboard;
