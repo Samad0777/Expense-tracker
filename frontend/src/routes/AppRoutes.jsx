@@ -26,7 +26,7 @@ export const router = createBrowserRouter([
         path: "/transactions",
         element: (
           <ProtectedRoute>
-            <Transactions />,
+            <Transactions />
           </ProtectedRoute>
         ),
       },
@@ -34,7 +34,7 @@ export const router = createBrowserRouter([
         path: "/analytics",
         element: (
           <ProtectedRoute>
-            <Analytics />,
+            <Analytics />
           </ProtectedRoute>
         ),
       },
@@ -42,7 +42,7 @@ export const router = createBrowserRouter([
         path: "/settings",
         element: (
           <ProtectedRoute>
-            <Settings />,
+            <Settings />
           </ProtectedRoute>
         ),
       },
