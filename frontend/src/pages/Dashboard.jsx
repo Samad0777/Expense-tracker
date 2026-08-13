@@ -10,7 +10,6 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchSummary = async () => {
       await dashboardSummaryHandler();
-      console.log(dashboardSummary);
     };
     fetchSummary();
   }, []);

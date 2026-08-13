@@ -7,16 +7,39 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Modal from "../components/Ui/Modal";
+import useTransactions from "../hook/useTransactions";
 
 const Transactions = () => {
   const [showFilter, setShowFilter] = useState(false);
   const [showAddTransaction, setShowAddTransaction] = useState(false);
+  const { fetchTransactionsHandler, allTransaction } = useTransactions();
+
+  const categoryLabels = {
+    Food: "🍔",
+    Shopping: "🛍️",
+    Transport: "🚗",
+    Bills: "💡",
+    Health: "💊",
+    Salary: "💻",
+    Entertainment: "🎬",
+    Other: "📦",
+  };
+
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      await fetchTransactionsHandler();
+    };
+    fetchTransactions();
+  }, []);
+
   return (
     <main className="md:p-4 bg-background h-screen">
       <div className="flex flex-col md:flex-row gap-8 items-center justify-between">
-        <h2 className="text-text-secondary">0 transactions found</h2>
+        <h2 className="text-text-secondary">
+          {allTransaction.length} transactions found
+        </h2>
         <button
           onClick={() => setShowAddTransaction(!showAddTransaction)}
           className="flex items-center gap-2 bg-primary text-white px-4 py-3 rounded-2xl cursor-pointer active:scale-95 hover:bg-primary-hover transition-all duration-200"
@@ -72,6 +95,7 @@ const Transactions = () => {
                 <option value="transport">🚗Transport</option>
                 <option value="bills">💡Bills</option>
                 <option value="health">💊Health</option>
+                <option value="salary">💻Salary</option>
                 <option value="entertainment">🎬Entertainment</option>
                 <option value="other">📦Other</option>
               </select>
@@ -105,16 +129,40 @@ const Transactions = () => {
           <p className="hidden sm:block">Action</p>
         </div>
 
-        <ul className="flex items-center justify-between py-4 border-b border-b-gray-100">
-          <li>💡 Water Bill</li>
-          <li>Bills</li>
-          <li>Jun 28, 2026</li>
-          <li>-{"₹"}3800</li>
-          <li className="hidden sm:flex items-center gap-2">
-            <SquarePen className="cursor-pointer text-text-first" size={20} />
-            <Trash2 className="cursor-pointer text-danger" size={20} />
-          </li>
-        </ul>
+        {allTransaction.map((item) => {
+          return (
+            <ul
+              key={item._id}
+              className="flex  items-center justify-between py-4 border-b border-b-gray-100"
+            >
+              <li className="w-28">
+                {categoryLabels[item.category]} {item.title}
+              </li>
+              <li className=" w-28 text-center">{item.category}</li>
+              <li className=" w-28 text-center">
+                {new Date(item.createdAt).toLocaleDateString()}
+              </li>
+              <li
+                className={
+                  item.type === "Income"
+                    ? "w-28 text-center text-success"
+                    : "w-28 text-center text-danger"
+                }
+              >
+                {item.type === "Expense"
+                  ? "-₹" + item.amount
+                  : "+₹" + item.amount}
+              </li>
+              <li className="hidden sm:flex items-center gap-2">
+                <SquarePen
+                  className="cursor-pointer text-text-first"
+                  size={20}
+                />
+                <Trash2 className="cursor-pointer text-danger" size={20} />
+              </li>
+            </ul>
+          );
+        })}
       </div>
 
       {/* modal section  */}
