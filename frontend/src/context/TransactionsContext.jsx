@@ -10,6 +10,7 @@ const TransactionsContextProvider = ({ children }) => {
   const [dashboardSummary, setDashboardSummary] = useState([]);
   const [allTransaction, setAllTransaction] = useState([]);
   const [dashboardLoading, setDashboardLoading] = useState(true);
+  
   const fetchTransactionsHandler = async () => {
     try {
       const response = await fetchTransactionsService();
