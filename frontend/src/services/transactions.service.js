@@ -17,3 +17,26 @@ export const dashboardSumaaryService = async () => {
     throw err;
   }
 };
+
+export const createTransactionService = async (
+  title,
+  amount,
+  type,
+  category,
+  date,
+  description
+) => {
+  try {
+    const response = await api.post("/transactions", {
+      title,
+      amount,
+      type,
+      category,
+      date,
+      description,
+    });
+    return response.data;
+  } catch (err) {
+    throw err;
+  }
+};
