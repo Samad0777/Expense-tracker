@@ -27,8 +27,13 @@ const Transactions = () => {
 
   const [showFilter, setShowFilter] = useState(false);
   const [showAddTransaction, setShowAddTransaction] = useState(false);
-  const { fetchTransactionsHandler, createTransactionHandler, allTransaction,deleteTransactionHandler } =
-    useTransactions();
+  const [transactionDelete, setTransactionDelete] = useState(true);
+  const {
+    fetchTransactionsHandler,
+    createTransactionHandler,
+    allTransaction,
+    deleteTransactionHandler,
+  } = useTransactions();
 
   const categoryLabels = {
     Food: "🍔",
@@ -61,14 +66,16 @@ const Transactions = () => {
     }
   };
 
-  //delete transaction 
-  const deleteTransaction = async(id)=>{
-    try{const response = await deleteTransactionHandler(id);
-    await fetchTransactionsHandler();
-    return response;}catch(err){
-      console.log(err.message)
+  //delete transaction
+  const deleteTransaction = async (id) => {
+    try {
+      const response = await deleteTransactionHandler(id);
+      await fetchTransactionsHandler();
+      return response;
+    } catch (err) {
+      console.log(err.message);
     }
-  }
+  };
 
   useEffect(() => {
     //fetching data
@@ -181,12 +188,8 @@ const Transactions = () => {
               className="flex  items-center justify-between py-4 border-b border-b-gray-100"
             >
               <li className="flex items-center gap-1 w-34 min-w-0">
-                <div>
-                {categoryLabels[item.category]}
-                </div>
-                <div className="truncate">
-                {item.title}
-                </div>
+                <div>{categoryLabels[item.category]}</div>
+                <div className="truncate">{item.title}</div>
               </li>
               <li className=" w-28 text-center">{item.category}</li>
               <li className=" w-28 text-center">
@@ -208,7 +211,11 @@ const Transactions = () => {
                   className="cursor-pointer text-text-first"
                   size={20}
                 />
-                <Trash2 onClick={()=>deleteTransaction(item._id)} className="cursor-pointer text-danger" size={20} />
+                <Trash2
+                  onClick={() => deleteTransaction(item._id)}
+                  className="cursor-pointer text-danger"
+                  size={20}
+                />
               </li>
             </ul>
           );
@@ -350,6 +357,27 @@ const Transactions = () => {
               </button>
             </div>
           </form>
+        </Modal>
+      )}
+
+      {transactionDelete && (
+        <Modal>
+          <div className="px-2 py-4">
+            <h2 className="border-b mb-4 pb-4 text-xl text-text-primary font-bold">
+              Delete Confirmation
+            </h2>
+            <p className="text-lg text-text-primary py-6 px-2">
+              Are you sure you want to delete?
+            </p>
+            <div className="flex items-center justify-between">
+              <button className="bg-background active:scale-95 rounded-md px-4 py-2 cursor-pointer transition-all duration-200">
+                Cancel
+              </button>
+              <button className="bg-danger active:scale-95 text-white rounded-md px-4 py-2 cursor-pointer transition-all duration-200">
+                Delete
+              </button>
+            </div>
+          </div>
         </Modal>
       )}
     </main>
