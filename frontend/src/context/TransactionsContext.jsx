@@ -3,6 +3,7 @@ import {
   fetchTransactionsService,
   dashboardSumaaryService,
   createTransactionService,
+  deleteTransactionService,
 } from "../services/transactions.service";
 
 export const TransactionsContext = createContext();
@@ -11,7 +12,6 @@ const TransactionsContextProvider = ({ children }) => {
   const [dashboardSummary, setDashboardSummary] = useState([]);
   const [allTransaction, setAllTransaction] = useState([]);
   const [dashboardLoading, setDashboardLoading] = useState(true);
-
 
   //fetching data
   const fetchTransactionsHandler = async () => {
@@ -48,6 +48,16 @@ const TransactionsContextProvider = ({ children }) => {
     }
   };
 
+  //delete transaction
+  const deleteTransactionHandler = async (id) => {
+    try {
+      const response = await deleteTransactionService(id);
+      return response;
+    } catch (err) {
+      throw err;
+    }
+  };
+
   //dashboard summary
   const dashboardSummaryHandler = async () => {
     try {
@@ -66,6 +76,7 @@ const TransactionsContextProvider = ({ children }) => {
       value={{
         fetchTransactionsHandler,
         createTransactionHandler,
+        deleteTransactionHandler,
         allTransaction,
         dashboardSummaryHandler,
         dashboardSummary,

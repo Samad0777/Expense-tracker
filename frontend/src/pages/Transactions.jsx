@@ -27,7 +27,7 @@ const Transactions = () => {
 
   const [showFilter, setShowFilter] = useState(false);
   const [showAddTransaction, setShowAddTransaction] = useState(false);
-  const { fetchTransactionsHandler, createTransactionHandler, allTransaction } =
+  const { fetchTransactionsHandler, createTransactionHandler, allTransaction,deleteTransactionHandler } =
     useTransactions();
 
   const categoryLabels = {
@@ -60,6 +60,16 @@ const Transactions = () => {
       console.log(err.message);
     }
   };
+
+  //delete transaction 
+  const deleteTransaction = async(id)=>{
+    try{const response = await deleteTransactionHandler(id);
+    await fetchTransactionsHandler();
+    return response;}catch(err){
+      console.log(err.message)
+    }
+  }
+
   useEffect(() => {
     //fetching data
     const fetchTransactions = async () => {
@@ -198,7 +208,7 @@ const Transactions = () => {
                   className="cursor-pointer text-text-first"
                   size={20}
                 />
-                <Trash2 className="cursor-pointer text-danger" size={20} />
+                <Trash2 onClick={()=>deleteTransaction(item._id)} className="cursor-pointer text-danger" size={20} />
               </li>
             </ul>
           );

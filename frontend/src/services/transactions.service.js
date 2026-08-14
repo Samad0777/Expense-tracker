@@ -1,5 +1,6 @@
 import api from "./axios";
 
+//fetching data
 export const fetchTransactionsService = async () => {
   try {
     const response = await api.get("/transactions/");
@@ -9,6 +10,7 @@ export const fetchTransactionsService = async () => {
   }
 };
 
+//dashboard summary
 export const dashboardSumaaryService = async () => {
   try {
     const response = await api.get("/transactions/summary");
@@ -18,6 +20,7 @@ export const dashboardSumaaryService = async () => {
   }
 };
 
+//creating transaction
 export const createTransactionService = async (
   title,
   amount,
@@ -40,3 +43,13 @@ export const createTransactionService = async (
     throw err;
   }
 };
+
+//delete transaction
+export const deleteTransactionService = async (id)=>{
+  try{
+    const response = await api.delete(`/transactions/${id}`)
+    return response.data;
+  }catch(err){
+    throw err;
+  }
+}
