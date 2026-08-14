@@ -27,7 +27,8 @@ const Transactions = () => {
 
   const [showFilter, setShowFilter] = useState(false);
   const [showAddTransaction, setShowAddTransaction] = useState(false);
-  const [transactionDelete, setTransactionDelete] = useState(true);
+  const [transactionDelete, setTransactionDelete] = useState(false);
+  const [selectedTransactionId, setSelectedTransactionId] = useState(null);
   const {
     fetchTransactionsHandler,
     createTransactionHandler,
@@ -66,10 +67,17 @@ const Transactions = () => {
     }
   };
 
+  const confirmDeleteTransaction = (id) => {
+    setTransactionDelete(true);
+    setSelectedTransactionId(id);
+  };
+
   //delete transaction
   const deleteTransaction = async (id) => {
     try {
       const response = await deleteTransactionHandler(id);
+      setTransactionDelete(false);
+      setSelectedTransactionId(null);
       await fetchTransactionsHandler();
       return response;
     } catch (err) {
@@ -212,7 +220,7 @@ const Transactions = () => {
                   size={20}
                 />
                 <Trash2
-                  onClick={() => deleteTransaction(item._id)}
+                  onClick={() => confirmDeleteTransaction(item._id)}
                   className="cursor-pointer text-danger"
                   size={20}
                 />
@@ -370,10 +378,16 @@ const Transactions = () => {
               Are you sure you want to delete?
             </p>
             <div className="flex items-center justify-between">
-              <button className="bg-background active:scale-95 rounded-md px-4 py-2 cursor-pointer transition-all duration-200">
+              <button
+                onClick={() => setTransactionDelete(false)}
+                className="bg-background active:scale-95 rounded-md px-4 py-2 cursor-pointer transition-all duration-200"
+              >
                 Cancel
               </button>
-              <button className="bg-danger active:scale-95 text-white rounded-md px-4 py-2 cursor-pointer transition-all duration-200">
+              <button
+                onClick={() => deleteTransaction(selectedTransactionId)}
+                className="bg-danger active:scale-95 text-white rounded-md px-4 py-2 cursor-pointer transition-all duration-200"
+              >
                 Delete
               </button>
             </div>

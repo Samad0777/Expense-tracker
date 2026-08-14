@@ -8,7 +8,7 @@ import {
 
 const Sidebar = () => {
   return (
-    <aside hidden className="w-56 h-screen bg-background-sidebar text-white px-4">
+    <aside className="w-56 h-screen bg-background-sidebar text-white px-4">
       <div className="border-b border-text-secondary px-2 py-8 mb-2">
         <h2>Expense Tracker</h2>
       </div>
