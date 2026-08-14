@@ -10,11 +10,25 @@ import {
 import { useEffect, useState } from "react";
 import Modal from "../components/Ui/Modal";
 import useTransactions from "../hook/useTransactions";
+import { useForm } from "react-hook-form";
 
 const Transactions = () => {
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+    setError,
+  } = useForm({
+    defaultValues: {
+      date: new Date().toISOString().split("T")[0],
+    },
+  });
+
   const [showFilter, setShowFilter] = useState(false);
   const [showAddTransaction, setShowAddTransaction] = useState(false);
-  const { fetchTransactionsHandler, allTransaction } = useTransactions();
+  const { fetchTransactionsHandler, createTransactionHandler, allTransaction } =
+    useTransactions();
 
   const categoryLabels = {
     Food: "🍔",
@@ -27,10 +41,31 @@ const Transactions = () => {
     Other: "📦",
   };
 
+  //creating transaction
+  const onSubmit = async (data) => {
+    try {
+      const response = await createTransactionHandler(
+        data.title,
+        data.amount,
+        data.type,
+        data.category,
+        data.date,
+        data.description,
+      );
+      reset();
+      setShowAddTransaction(false);
+      await fetchTransactionsHandler();
+      return response;
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
   useEffect(() => {
+    //fetching data
     const fetchTransactions = async () => {
       await fetchTransactionsHandler();
     };
+
     fetchTransactions();
   }, []);
 
@@ -135,8 +170,13 @@ const Transactions = () => {
               key={item._id}
               className="flex  items-center justify-between py-4 border-b border-b-gray-100"
             >
-              <li className="w-28">
-                {categoryLabels[item.category]} {item.title}
+              <li className="flex items-center gap-1 w-34 min-w-0">
+                <div>
+                {categoryLabels[item.category]}
+                </div>
+                <div className="truncate">
+                {item.title}
+                </div>
               </li>
               <li className=" w-28 text-center">{item.category}</li>
               <li className=" w-28 text-center">
@@ -168,10 +208,14 @@ const Transactions = () => {
       {/* modal section  */}
       {showAddTransaction && (
         <Modal>
-          <div className="flex flex-col gap-4">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex flex-col gap-4"
+          >
             <div className="flex items-center justify-between">
               <h2 className="text-text-primary text-2xl">Add Transaction</h2>
               <button
+                type="button"
                 onClick={() => setShowAddTransaction(!showAddTransaction)}
               >
                 <X
@@ -183,53 +227,119 @@ const Transactions = () => {
             <h2 className="text-text-primary text-xl">Type</h2>
             <div className="flex gap-8">
               <label>
-                <input type="radio" name="type" value="income" />
+                <input
+                  type="radio"
+                  name="type"
+                  value="Income"
+                  {...register("type", {
+                    required: "Please select transaction type",
+                  })}
+                />
                 Income
               </label>
               <label>
-                <input type="radio" name="type" value="expense" />
+                <input
+                  type="radio"
+                  name="type"
+                  value="Expense"
+                  {...register("type", {
+                    required: "Please select transaction type",
+                  })}
+                />
                 Expense
               </label>
             </div>
+            {errors.type && (
+              <p className="text-danger">{errors.type.message}</p>
+            )}
             <h2 className="text-text-primary text-xl">Title</h2>
             <input
               type="text"
               className="px-2 py-2 rounded-md border"
               placeholder="e.g. Grocery"
-            />
+              {...register("title", {
+                required: "Title is required",
+                maxLength: {
+                  value: 30,
+                  message: "Title cannot exceed 30 characters",
+                },
+              })}
+            />{" "}
+            {errors.title && (
+              <p className="text-danger">{errors.title.message}</p>
+            )}
             <h2 className="text-text-primary text-xl">Amount</h2>
             <input
               type="number"
               className="px-2 py-2 rounded-md border"
               placeholder="₹ 0.00"
-            />
+              {...register("amount", {
+                required: "Amount is required",
+                min: {
+                  value: 1,
+                  message: "Amount must be greater than 0",
+                },
+              })}
+            />{" "}
+            {errors.amount && (
+              <p className="text-danger">{errors.amount.message}</p>
+            )}
+            {/* category  */}
             <h2 className="text-text-primary text-xl">Category</h2>
-            <select className="py-4 border-none outline-none cursor-pointer">
-              <option value="food">🍔Food & Dining</option>
-              <option value="shopping">🛍️Shopping</option>
-              <option value="transport">🚗Transport</option>
-              <option value="bills">💡Bills</option>
-              <option value="health">💊Health</option>
-              <option value="entertainment">🎬Entertainment</option>
-              <option value="other">📦Other</option>
-            </select>
+            <select
+              className="py-4 border-none outline-none cursor-pointer"
+              {...register("category", {
+                required: "Category is required",
+              })}
+            >
+              <option value="Food">🍔Food & Dining</option>
+              <option value="Shopping">🛍️Shopping</option>
+              <option value="Transport">🚗Transport</option>
+              <option value="Bills">💡Bills</option>
+              <option value="Health">💊Health</option>
+              <option value="Salary">💻Salary</option>
+              <option value="Entertainment">🎬Entertainment</option>
+              <option value="Other">📦Other</option>
+            </select>{" "}
+            {errors.category && (
+              <p className="text-danger">{errors.category.message}</p>
+            )}
+            {/* Date  */}
             <h2 className="text-text-primary text-xl">Date</h2>
-            <input type="date" />
+            <input type="date" {...register("date")} />
+            {/* Note */}
             <h2 className="text-text-secondary text-xl">Note (optional)</h2>
             <input
               type="text"
               className="px-2 py-2 rounded-md border"
               placeholder="---"
-            />
+              {...register("description", {
+                maxLength: {
+                  value: 300,
+                  message: "Note cannot exceed 300 characters",
+                },
+              })}
+            />{" "}
+            {errors.description && (
+              <p className="text-danger">{errors.description.message}</p>
+            )}
+            {/* buttons  */}
             <div className="flex items-center justify-between">
-              <button className="bg-background active:scale-95 rounded-md px-4 py-2 cursor-pointer transition-all duration-200">
+              <button
+                type="button"
+                onClick={() => setShowAddTransaction(false)}
+                className="bg-background active:scale-95 rounded-md px-4 py-2 cursor-pointer transition-all duration-200"
+              >
                 Cancel
               </button>
-              <button className="bg-primary hover:bg-primary-hover active:scale-95 text-white rounded-md px-4 py-2 cursor-pointer transition-all duration-200">
+              <button
+                type="submit"
+                className="bg-primary hover:bg-primary-hover active:scale-95 text-white rounded-md px-4 py-2 cursor-pointer transition-all duration-200"
+              >
                 Add
               </button>
             </div>
-          </div>
+          </form>
         </Modal>
       )}
     </main>
