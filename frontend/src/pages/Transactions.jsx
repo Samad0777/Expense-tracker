@@ -34,6 +34,7 @@ const Transactions = () => {
     createTransactionHandler,
     allTransaction,
     deleteTransactionHandler,
+    loading,
   } = useTransactions();
 
   const categoryLabels = {
@@ -230,55 +231,54 @@ const Transactions = () => {
           );
         })}
 
-
         {/* mobile */}
 
-         {allTransaction.map((item) => {
+        {allTransaction.map((item) => {
           return (
             <ul
               key={item._id}
               className="flex md:hidden justify-between py-4 border-b border-b-gray-100"
             >
               <div className="">
-              <li className="flex items-centers gap-4">
-                <div>{categoryLabels[item.category]}</div>
-                <div className="truncate text-text-primary">{item.title}</div>
-              </li>
-              <li className="py-1 w-28 text-center text-text-secondary text-sm">{item.category}</li>
-              <li className="py-1 w-28 text-center text-text-secondary text-xs">
-                {new Date(item.createdAt).toLocaleDateString()}
-              </li>
+                <li className="flex items-centers gap-4">
+                  <div>{categoryLabels[item.category]}</div>
+                  <div className="truncate text-text-primary">{item.title}</div>
+                </li>
+                <li className="py-1 w-28 text-center text-text-secondary text-sm">
+                  {item.category}
+                </li>
+                <li className="py-1 w-28 text-center text-text-secondary text-xs">
+                  {new Date(item.createdAt).toLocaleDateString()}
+                </li>
               </div>
 
               <div className="flex flex-col items-center justify-between">
-
-              <li
-                className={
-                  item.type === "Income"
-                  ? "w-28 text-center text-success font-bold"
-                  : "w-28 text-center text-danger font-bold"
-                }
+                <li
+                  className={
+                    item.type === "Income"
+                      ? "w-28 text-center text-success font-bold"
+                      : "w-28 text-center text-danger font-bold"
+                  }
                 >
-                {item.type === "Expense"
-                  ? "-₹" + item.amount
-                  : "+₹" + item.amount}
-              </li>
-              <li className="flex items-center gap-8">
-                <SquarePen
-                  className="cursor-pointer text-text-first"
-                  size={20}
+                  {item.type === "Expense"
+                    ? "-₹" + item.amount
+                    : "+₹" + item.amount}
+                </li>
+                <li className="flex items-center gap-8">
+                  <SquarePen
+                    className="cursor-pointer text-text-first"
+                    size={20}
                   />
-                <Trash2
-                  onClick={() => confirmDeleteTransaction(item._id)}
-                  className="cursor-pointer text-danger"
-                  size={20}
+                  <Trash2
+                    onClick={() => confirmDeleteTransaction(item._id)}
+                    className="cursor-pointer text-danger"
+                    size={20}
                   />
-              </li>
-                  </div>
+                </li>
+              </div>
             </ul>
           );
         })}
-
       </div>
 
       {/* modal section  */}
@@ -404,15 +404,20 @@ const Transactions = () => {
               <button
                 type="button"
                 onClick={() => setShowAddTransaction(false)}
-                className="bg-background active:scale-95 rounded-md px-10 py-2 cursor-pointer transition-all duration-200"
+                className="bg-background active:scale-95 rounded-md px-8 py-2 cursor-pointer transition-all duration-200"
               >
                 Cancel
               </button>
               <button
+                disabled={loading}
                 type="submit"
-                className="bg-primary hover:bg-primary-hover active:scale-95 text-white rounded-md px-10 py-2 cursor-pointer transition-all duration-200"
+                className={
+                  loading
+                    ? "bg-purple-500 text-white rounded-md px-8 py-2 cursor-not-allowed transition-all duration-200"
+                    : "bg-primary hover:bg-primary-hover active:scale-95 text-white rounded-md px-8 py-2 cursor-pointer transition-all duration-200"
+                }
               >
-                Add
+                {loading ? "Adding.." : "Add"}
               </button>
             </div>
           </form>
