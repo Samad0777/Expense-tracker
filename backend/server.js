@@ -24,7 +24,7 @@ app.use(
   cors({
     origin: process.env.CLIENT_URL, // allow requests from our React frontend
     credentials: true, // allow cookies to be sent
-  })
+  }),
 );
 app.use(express.json()); // parse JSON request bodies
 app.use(cookieParser()); // parse cookies (needed to read JWT cookie)
@@ -48,6 +48,6 @@ app.use((req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
 });
