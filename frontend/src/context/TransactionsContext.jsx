@@ -12,6 +12,7 @@ const TransactionsContextProvider = ({ children }) => {
   const [dashboardSummary, setDashboardSummary] = useState([]);
   const [allTransaction, setAllTransaction] = useState([]);
   const [dashboardLoading, setDashboardLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   //fetching data
   const fetchTransactionsHandler = async () => {
@@ -33,6 +34,7 @@ const TransactionsContextProvider = ({ children }) => {
     date,
     description,
   ) => {
+    setLoading(true);
     try {
       const response = await createTransactionService(
         title,
@@ -45,6 +47,8 @@ const TransactionsContextProvider = ({ children }) => {
       return response;
     } catch (err) {
       throw err;
+    }finally{
+      setLoading(false);
     }
   };
 
@@ -81,6 +85,7 @@ const TransactionsContextProvider = ({ children }) => {
         dashboardSummaryHandler,
         dashboardSummary,
         dashboardLoading,
+        loading,
       }}
     >
       {children}
