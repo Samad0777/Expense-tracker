@@ -97,7 +97,7 @@ const Transactions = () => {
   return (
     <main className="md:p-4 bg-background h-screen">
       <div className="flex flex-col md:flex-row gap-8 items-center justify-between">
-        <h2 className="text-text-secondary">
+        <h2 className="text-text-secondary mt-4 mb-4">
           {allTransaction.length} transactions found
         </h2>
         <button
@@ -174,7 +174,7 @@ const Transactions = () => {
 
       {/* Transaction lists */}
       <div className="bg-surface py-4 px-4 rounded-2xl">
-        <div className="flex justify-between items-center text-text-secondary">
+        <div className="hidden md:flex justify-between items-center text-text-secondary">
           <p className="flex gap-2 items-center cursor-pointer hover:text-text-primary">
             Transaction{" "}
             <ChevronsUpDown className="hidden md:block" size={20} />{" "}
@@ -189,15 +189,16 @@ const Transactions = () => {
           <p className="hidden sm:block">Action</p>
         </div>
 
+        {/* desktop */}
         {allTransaction.map((item) => {
           return (
             <ul
               key={item._id}
-              className="flex  items-center justify-between py-4 border-b border-b-gray-100"
+              className="hidden md:flex items-center justify-between py-4 border-b border-b-gray-100"
             >
               <li className="flex items-center gap-1 w-34 min-w-0">
                 <div>{categoryLabels[item.category]}</div>
-                <div className="truncate">{item.title}</div>
+                <div className="truncate text-text-primary">{item.title}</div>
               </li>
               <li className=" w-28 text-center">{item.category}</li>
               <li className=" w-28 text-center">
@@ -228,6 +229,56 @@ const Transactions = () => {
             </ul>
           );
         })}
+
+
+        {/* mobile */}
+
+         {allTransaction.map((item) => {
+          return (
+            <ul
+              key={item._id}
+              className="flex md:hidden justify-between py-4 border-b border-b-gray-100"
+            >
+              <div className="">
+              <li className="flex items-centers gap-4">
+                <div>{categoryLabels[item.category]}</div>
+                <div className="truncate text-text-primary">{item.title}</div>
+              </li>
+              <li className="py-1 w-28 text-center text-text-secondary text-sm">{item.category}</li>
+              <li className="py-1 w-28 text-center text-text-secondary text-xs">
+                {new Date(item.createdAt).toLocaleDateString()}
+              </li>
+              </div>
+
+              <div className="flex flex-col items-center justify-between">
+
+              <li
+                className={
+                  item.type === "Income"
+                  ? "w-28 text-center text-success font-bold"
+                  : "w-28 text-center text-danger font-bold"
+                }
+                >
+                {item.type === "Expense"
+                  ? "-₹" + item.amount
+                  : "+₹" + item.amount}
+              </li>
+              <li className="flex items-center gap-8">
+                <SquarePen
+                  className="cursor-pointer text-text-first"
+                  size={20}
+                  />
+                <Trash2
+                  onClick={() => confirmDeleteTransaction(item._id)}
+                  className="cursor-pointer text-danger"
+                  size={20}
+                  />
+              </li>
+                  </div>
+            </ul>
+          );
+        })}
+
       </div>
 
       {/* modal section  */}
