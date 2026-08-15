@@ -400,17 +400,17 @@ const Transactions = () => {
               <p className="text-danger">{errors.description.message}</p>
             )}
             {/* buttons  */}
-            <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 justify-between mt-4 mb-4">
               <button
                 type="button"
                 onClick={() => setShowAddTransaction(false)}
-                className="bg-background active:scale-95 rounded-md px-4 py-2 cursor-pointer transition-all duration-200"
+                className="bg-background active:scale-95 rounded-md px-10 py-2 cursor-pointer transition-all duration-200"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="bg-primary hover:bg-primary-hover active:scale-95 text-white rounded-md px-4 py-2 cursor-pointer transition-all duration-200"
+                className="bg-primary hover:bg-primary-hover active:scale-95 text-white rounded-md px-10 py-2 cursor-pointer transition-all duration-200"
               >
                 Add
               </button>
