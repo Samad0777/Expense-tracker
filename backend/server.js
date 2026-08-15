@@ -38,6 +38,14 @@ app.get("/", (req, res) => {
   res.send("Expense Tracker API is running");
 });
 
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    success: true,
+    status: "ok",
+    message: "Server is healthy",
+  });
+});
+
 // 404 handler for unknown routes
 app.use((req, res) => {
   res.status(404).json({
