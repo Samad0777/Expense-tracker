@@ -441,10 +441,15 @@ const Transactions = () => {
                 Cancel
               </button>
               <button
+              disabled={loading}
                 onClick={() => deleteTransaction(selectedTransactionId)}
-                className="bg-danger active:scale-95 text-white rounded-md px-4 py-2 cursor-pointer transition-all duration-200"
+                className={`${
+                  loading
+                    ? "bg-red-400 text-white rounded-md px-4 py-2 cursor-not-allowed transition-all duration-200"
+                    : "bg-danger hover:bg-danger-hover active:scale-95 text-white rounded-md px-4 py-2 cursor-pointer transition-all duration-200"
+                }`}
               >
-                Delete
+                {loading ? "Deleting..." : "Delete"}
               </button>
             </div>
           </div>

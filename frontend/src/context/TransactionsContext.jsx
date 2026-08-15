@@ -54,11 +54,14 @@ const TransactionsContextProvider = ({ children }) => {
 
   //delete transaction
   const deleteTransactionHandler = async (id) => {
+    setLoading(true);
     try {
       const response = await deleteTransactionService(id);
       return response;
     } catch (err) {
       throw err;
+    }finally{
+      setLoading(false);
     }
   };
 
