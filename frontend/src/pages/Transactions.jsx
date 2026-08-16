@@ -17,7 +17,7 @@ const Transactions = () => {
     register,
     handleSubmit,
     reset,
-    formState: { errors },
+    formState: { errors, isDirty },
     setError,
   } = useForm({
     defaultValues: {
@@ -152,10 +152,10 @@ const Transactions = () => {
 
   //closing add and edit transaction modal
   const closeTransactionModal = () => {
-  setShowAddTransaction(false);
-  setSelectedTransactionId(null);
-  reset();
-};
+    setShowAddTransaction(false);
+    setSelectedTransactionId(null);
+    reset();
+  };
 
   return (
     <main className="md:p-4 bg-background h-screen">
@@ -362,10 +362,7 @@ const Transactions = () => {
               <h2 className="text-text-primary text-2xl">
                 {isEditing ? "Edit Transaction" : "Add Transaction"}
               </h2>
-              <button
-                type="button"
-                onClick={closeTransactionModal}
-              >
+              <button type="button" onClick={closeTransactionModal}>
                 <X
                   className="text-text-secondary hover:text-text-primary cursor-pointer"
                   size={20}
@@ -481,10 +478,10 @@ const Transactions = () => {
                 Cancel
               </button>
               <button
-                disabled={loading}
+                disabled={loading || (isEditing && !isDirty)}
                 type="submit"
                 className={
-                  loading
+                  loading || (isEditing && !isDirty)
                     ? "bg-purple-500 text-white rounded-md px-8 py-2 cursor-not-allowed transition-all duration-200"
                     : "bg-primary hover:bg-primary-hover active:scale-95 text-white rounded-md px-8 py-2 cursor-pointer transition-all duration-200"
                 }
