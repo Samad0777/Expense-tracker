@@ -10,7 +10,7 @@ const MainLayout = () => {
       setIsSidebarOpen(!isSidebarOpen);
     }
   return (
-    <div className='relative flex h-screen overflow-hidden'>
+    <div className='relative z-0 flex h-screen overflow-hidden'>
        <Sidebar isOpen={isSidebarOpen} onMenuClick={toggleHandler}/>
        <div className='flex-1 min-w-0 flex flex-col'>
         <Navbar onMenuClick={toggleHandler}/>
