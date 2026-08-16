@@ -111,7 +111,7 @@ const Transactions = () => {
       </div>
 
       {/* search and filter  */}
-      <div className="flex items-center gap-4 bg-surface py-4 px-4 mt-4 mb-4 rounded-2xl">
+      <div className="relative flex items-center gap-4 bg-surface py-4 px-4 mt-4 mb-4 rounded-2xl">
         <div className="flex flex-1 items-center border px-4 rounded-xl bg-background">
           <Search size={20} className="text-text-secondary" />
           <input
@@ -121,7 +121,7 @@ const Transactions = () => {
             placeholder="Search..."
           />
         </div>
-        <div className="relative">
+        <div>
           <button
             onClick={() => setShowFilter(!showFilter)}
             className="flex items-center gap-2 cursor-pointer bg-background px-4 py-4 rounded-xl"
@@ -131,7 +131,7 @@ const Transactions = () => {
           </button>
         </div>
         {showFilter && (
-          <div className="absolute right-10 top-55 p-4 rounded-2xl border bg-background">
+          <div className="absolute md:right-10 md:top-20 right-10 top-20 p-4 rounded-2xl border bg-background">
             <h2 className="text-text-primary">Types</h2>
             <div className="flex gap-4 text-text-secondary py-4">
               <label>
