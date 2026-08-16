@@ -27,7 +27,7 @@ export const createTransactionService = async (
   type,
   category,
   date,
-  description
+  description,
 ) => {
   try {
     const response = await api.post("/transactions", {
@@ -45,11 +45,36 @@ export const createTransactionService = async (
 };
 
 //delete transaction
-export const deleteTransactionService = async (id)=>{
-  try{
-    const response = await api.delete(`/transactions/${id}`)
+export const deleteTransactionService = async (id) => {
+  try {
+    const response = await api.delete(`/transactions/${id}`);
     return response.data;
-  }catch(err){
+  } catch (err) {
     throw err;
   }
-}
+};
+
+//edit transaction
+export const editTransactionService = async (
+  id,
+  title,
+  amount,
+  type,
+  category,
+  date,
+  description,
+) => {
+  try {
+    const response = await api.patch(`/transactions/${id}`, {
+      title,
+      amount,
+      type,
+      category,
+      date,
+      description,
+    });
+    return response.data;
+  } catch (err) {
+    throw err;
+  }
+};
