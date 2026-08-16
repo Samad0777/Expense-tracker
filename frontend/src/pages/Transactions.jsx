@@ -34,6 +34,7 @@ const Transactions = () => {
     createTransactionHandler,
     allTransaction,
     deleteTransactionHandler,
+    editTransactionHandler,
     loading,
   } = useTransactions();
 
@@ -51,17 +52,35 @@ const Transactions = () => {
   //creating transaction
   const onSubmit = async (data) => {
     try {
-      const response = await createTransactionHandler(
-        data.title,
-        data.amount,
-        data.type,
-        data.category,
-        data.date,
-        data.description,
-      );
+      let response;
+
+      if (isEditing) {
+        response = await editTransactionHandler(
+          selectedTransactionId,
+          data.title,
+          data.amount,
+          data.type,
+          data.category,
+          data.date,
+          data.description,
+        );
+      } else {
+        response = await createTransactionHandler(
+          data.title,
+          data.amount,
+          data.type,
+          data.category,
+          data.date,
+          data.description,
+        );
+      }
+
       reset();
+      setSelectedTransactionId(null);
       setShowAddTransaction(false);
+
       await fetchTransactionsHandler();
+
       return response;
     } catch (err) {
       console.log(err.message);
@@ -95,6 +114,49 @@ const Transactions = () => {
     fetchTransactions();
   }, []);
 
+  //editing transaction
+
+  const isEditing = Boolean(selectedTransactionId);
+
+  useEffect(() => {
+    if (!selectedTransactionId) return;
+
+    const transaction = allTransaction.find(
+      (item) => item._id === selectedTransactionId,
+    );
+
+    if (transaction) {
+      reset({
+        title: transaction.title,
+        amount: transaction.amount,
+        type: transaction.type,
+        category: transaction.category,
+        date: new Date(transaction.date).toISOString().split("T")[0],
+        description: transaction.description,
+      });
+    }
+  }, [selectedTransactionId, allTransaction, reset]);
+
+  const openAddTransaction = () => {
+    setSelectedTransactionId(null);
+    reset({
+      title: "",
+      amount: "",
+      type: "",
+      category: "Food",
+      date: new Date().toISOString().split("T")[0],
+      description: "",
+    });
+    setShowAddTransaction(true);
+  };
+
+  //closing add and edit transaction modal
+  const closeTransactionModal = () => {
+  setShowAddTransaction(false);
+  setSelectedTransactionId(null);
+  reset();
+};
+
   return (
     <main className="md:p-4 bg-background h-screen">
       <div className="flex flex-col md:flex-row gap-8 items-center justify-between">
@@ -102,7 +164,7 @@ const Transactions = () => {
           {allTransaction.length} transactions found
         </h2>
         <button
-          onClick={() => setShowAddTransaction(!showAddTransaction)}
+          onClick={openAddTransaction}
           className="flex items-center gap-2 bg-primary text-white px-4 py-3 rounded-2xl cursor-pointer active:scale-95 hover:bg-primary-hover transition-all duration-200"
         >
           <Plus size={20} />
@@ -218,6 +280,10 @@ const Transactions = () => {
               </li>
               <li className="hidden sm:flex items-center gap-2">
                 <SquarePen
+                  onClick={() => (
+                    setShowAddTransaction(true),
+                    setSelectedTransactionId(item._id)
+                  )}
                   className="cursor-pointer text-text-first"
                   size={20}
                 />
@@ -266,6 +332,10 @@ const Transactions = () => {
                 </li>
                 <li className="flex items-center gap-8">
                   <SquarePen
+                    onClick={() => (
+                      setShowAddTransaction(true),
+                      setSelectedTransactionId(item._id)
+                    )}
                     className="cursor-pointer text-text-first"
                     size={20}
                   />
@@ -289,10 +359,12 @@ const Transactions = () => {
             className="flex flex-col gap-4"
           >
             <div className="flex items-center justify-between">
-              <h2 className="text-text-primary text-2xl">Add Transaction</h2>
+              <h2 className="text-text-primary text-2xl">
+                {isEditing ? "Edit Transaction" : "Add Transaction"}
+              </h2>
               <button
                 type="button"
-                onClick={() => setShowAddTransaction(!showAddTransaction)}
+                onClick={closeTransactionModal}
               >
                 <X
                   className="text-text-secondary hover:text-text-primary cursor-pointer"
@@ -403,7 +475,7 @@ const Transactions = () => {
             <div className="flex items-center gap-2 justify-between mt-4 mb-4">
               <button
                 type="button"
-                onClick={() => setShowAddTransaction(false)}
+                onClick={closeTransactionModal}
                 className="bg-background active:scale-95 rounded-md px-8 py-2 cursor-pointer transition-all duration-200"
               >
                 Cancel
@@ -417,7 +489,13 @@ const Transactions = () => {
                     : "bg-primary hover:bg-primary-hover active:scale-95 text-white rounded-md px-8 py-2 cursor-pointer transition-all duration-200"
                 }
               >
-                {loading ? "Adding.." : "Add"}
+                {loading
+                  ? isEditing
+                    ? "Updating..."
+                    : "Adding..."
+                  : isEditing
+                    ? "Update"
+                    : "Add"}
               </button>
             </div>
           </form>
@@ -435,13 +513,16 @@ const Transactions = () => {
             </p>
             <div className="flex items-center justify-between">
               <button
-                onClick={() => setTransactionDelete(false)}
+                onClick={() => (
+                  setSelectedTransactionId(null),
+                  setTransactionDelete(false)
+                )}
                 className="bg-background active:scale-95 rounded-md px-4 py-2 cursor-pointer transition-all duration-200"
               >
                 Cancel
               </button>
               <button
-              disabled={loading}
+                disabled={loading}
                 onClick={() => deleteTransaction(selectedTransactionId)}
                 className={`${
                   loading

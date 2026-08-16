@@ -4,6 +4,7 @@ import {
   dashboardSumaaryService,
   createTransactionService,
   deleteTransactionService,
+  editTransactionService,
 } from "../services/transactions.service";
 
 export const TransactionsContext = createContext();
@@ -47,7 +48,7 @@ const TransactionsContextProvider = ({ children }) => {
       return response;
     } catch (err) {
       throw err;
-    }finally{
+    } finally {
       setLoading(false);
     }
   };
@@ -60,7 +61,36 @@ const TransactionsContextProvider = ({ children }) => {
       return response;
     } catch (err) {
       throw err;
-    }finally{
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  //edit transaction
+  const editTransactionHandler = async (
+    id,
+    title,
+    amount,
+    type,
+    category,
+    date,
+    description,
+  ) => {
+    setLoading(true);
+    try {
+      const response = await editTransactionService(
+        id,
+        title,
+        amount,
+        type,
+        category,
+        date,
+        description,
+      );
+      return response;
+    } catch (err) {
+      throw err;
+    } finally {
       setLoading(false);
     }
   };
@@ -84,6 +114,7 @@ const TransactionsContextProvider = ({ children }) => {
         fetchTransactionsHandler,
         createTransactionHandler,
         deleteTransactionHandler,
+        editTransactionHandler,
         allTransaction,
         dashboardSummaryHandler,
         dashboardSummary,
