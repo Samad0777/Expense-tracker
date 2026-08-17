@@ -11,7 +11,9 @@ const {
   createTransaction,
   updateTransaction,
   deleteTransaction,
-  getTransactionSummary
+  getTransactionSummary,
+  getMonthlyAnalytics,
+  getCategoryBreakdown,
 } = require("../controllers/transactionController");
 
 const authMiddleware = require("../middlewares/authMiddleware");
@@ -21,6 +23,8 @@ router.use(authMiddleware);
 
 router.get("/", getTransactions);
 router.get("/summary", getTransactionSummary);
+router.get("/analytics/monthly", getMonthlyAnalytics);
+router.get("/analytics/category-breakdown", getCategoryBreakdown);
 router.get("/:id", getTransactionById);
 router.post("/", createTransaction);
 router.patch("/:id", updateTransaction);
