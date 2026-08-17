@@ -265,7 +265,7 @@ const Transactions = () => {
               </li>
               <li className=" w-28 text-center">{item.category}</li>
               <li className=" w-28 text-center">
-                {new Date(item.createdAt).toLocaleDateString()}
+                {new Date(item.date).toLocaleDateString()}
               </li>
               <li
                 className={
@@ -314,7 +314,7 @@ const Transactions = () => {
                   {item.category}
                 </li>
                 <li className="py-1 w-28 text-center text-text-secondary text-xs">
-                  {new Date(item.createdAt).toLocaleDateString()}
+                  {new Date(item.date).toLocaleDateString()}
                 </li>
               </div>
 
