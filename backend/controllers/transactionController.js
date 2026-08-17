@@ -267,6 +267,109 @@ const getTransactionSummary = async (req, res) => {
   }
 };
 
+// @route   GET /api/transactions/analytics/monthly
+// Returns month-wise income & expense totals — powers "Income vs Expenses"
+// bar chart and "Savings Trend" line chart on the Analytics page.
+// Frontend can derive Avg Monthly Income/Expense/Savings and Savings Rate
+// by averaging this array — no need for a separate API for that.
+const getMonthlyAnalytics = async (req, res) => {
+  try {
+    const monthly = await Transaction.aggregate([
+      { $match: { userId: new mongoose.Types.ObjectId(req.userId) } },
+      {
+        $group: {
+          _id: {
+            year: { $year: "$date" },
+            month: { $month: "$date" },
+            type: "$type",
+          },
+          total: { $sum: "$amount" },
+        },
+      },
+      { $sort: { "_id.year": 1, "_id.month": 1 } },
+    ]);
+
+    // Aggregation above gives separate rows for Income and Expense per
+    // month (e.g. { year:2026, month:3, type:"Income", total:500 }).
+    // Reshape into one row per month: { year, month, income, expenses, savings }
+    const monthNames = [
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+    ];
+    const monthMap = new Map();
+
+    monthly.forEach((row) => {
+      const key = `${row._id.year}-${row._id.month}`;
+      if (!monthMap.has(key)) {
+        monthMap.set(key, {
+          month: monthNames[row._id.month - 1],
+          year: row._id.year,
+          income: 0,
+          expenses: 0,
+        });
+      }
+      const entry = monthMap.get(key);
+      if (row._id.type === "Income") entry.income = row.total;
+      if (row._id.type === "Expense") entry.expenses = row.total;
+    });
+
+    const result = Array.from(monthMap.values()).map((entry) => ({
+      ...entry,
+      savings: entry.income - entry.expenses,
+    }));
+
+    return res.status(200).json({
+      success: true,
+      message: "Monthly analytics fetched successfully",
+      data: result,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// @route   GET /api/transactions/analytics/category-breakdown
+// Returns total expense amount per category — powers the
+// "Expense Breakdown" donut chart on the Analytics page.
+const getCategoryBreakdown = async (req, res) => {
+  try {
+    const breakdown = await Transaction.aggregate([
+      {
+        $match: {
+          userId: new mongoose.Types.ObjectId(req.userId),
+          type: "Expense", // donut chart is expense-only
+        },
+      },
+      {
+        $group: {
+          _id: "$category",
+          total: { $sum: "$amount" },
+        },
+      },
+      { $sort: { total: -1 } },
+    ]);
+
+    const result = breakdown.map((item) => ({
+      category: item._id,
+      total: item.total,
+    }));
+
+    return res.status(200).json({
+      success: true,
+      message: "Category breakdown fetched successfully",
+      data: result,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   getTransactions,
   getTransactionById,
@@ -274,4 +377,6 @@ module.exports = {
   updateTransaction,
   deleteTransaction,
   getTransactionSummary,
+  getMonthlyAnalytics,
+  getCategoryBreakdown,
 };
