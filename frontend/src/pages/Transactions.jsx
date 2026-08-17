@@ -29,6 +29,9 @@ const Transactions = () => {
   const [showAddTransaction, setShowAddTransaction] = useState(false);
   const [transactionDelete, setTransactionDelete] = useState(false);
   const [selectedTransactionId, setSelectedTransactionId] = useState(null);
+  const [type, setType] = useState("all");
+  const [category, setCategory] = useState("all");
+  const [filterTransaction, setFilterTransaction] = useState(null);
   const {
     fetchTransactionsHandler,
     createTransactionHandler,
@@ -156,12 +159,31 @@ const Transactions = () => {
     setSelectedTransactionId(null);
     reset();
   };
+  // console.log(allTransaction);
+  // console.log(type);
+  // console.log(category);
+
+  //filter function
+
+  const transactionFilter = () => {
+    const filtered = allTransaction.filter((item) => {
+      const typeMatches = type === "all" || item.type === type;
+
+      const categoryMatches = category === "all" || item.category === category;
+
+      return typeMatches && categoryMatches;
+    });
+    setFilterTransaction(filtered);
+    setShowFilter(false);
+  };
+
+  const transactionsToRender = filterTransaction ?? allTransaction;
 
   return (
     <main className="md:p-4 bg-background h-screen">
       <div className="flex flex-col md:flex-row gap-8 items-center justify-between">
         <h2 className="text-text-secondary mt-4 mb-4">
-          {allTransaction.length} transactions found
+          {transactionsToRender.length} transactions found
         </h2>
         <button
           onClick={openAddTransaction}
@@ -197,37 +219,68 @@ const Transactions = () => {
             <h2 className="text-text-primary">Types</h2>
             <div className="flex gap-4 text-text-secondary py-4">
               <label>
-                <input type="radio" name="type" id="all" value="all" />
+                <input
+                  onChange={(e) => setType(e.target.value)}
+                  checked={type === "all"}
+                  type="radio"
+                  name="type"
+                  id="all"
+                  value="all"
+                />
                 All
               </label>
               <label>
-                <input type="radio" name="type" id="income" value="income" />
+                <input
+                  onChange={(e) => setType(e.target.value)}
+                  checked={type === "Income"}
+                  type="radio"
+                  name="type"
+                  id="income"
+                  value="Income"
+                />
                 Income
               </label>
               <label>
-                <input type="radio" name="type" id="expense" value="expense" />
+                <input
+                  onChange={(e) => setType(e.target.value)}
+                  checked={type === "Expense"}
+                  type="radio"
+                  name="type"
+                  id="expense"
+                  value="Expense"
+                />
                 Expense
               </label>
             </div>
             <h2 className="text-text-primary">Category</h2>
             <div className="flex">
-              <select className="py-4 border-none outline-none cursor-pointer">
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="py-4 border-none outline-none cursor-pointer"
+              >
                 <option value="all">All categories</option>
-                <option value="food">🍔Food & Dining</option>
-                <option value="shopping">🛍️Shopping</option>
-                <option value="transport">🚗Transport</option>
-                <option value="bills">💡Bills</option>
-                <option value="health">💊Health</option>
-                <option value="salary">💻Salary</option>
-                <option value="entertainment">🎬Entertainment</option>
-                <option value="other">📦Other</option>
+                <option value="Food">🍔Food & Dining</option>
+                <option value="Shopping">🛍️Shopping</option>
+                <option value="Transport">🚗Transport</option>
+                <option value="Bills">💡Bills</option>
+                <option value="Health">💊Health</option>
+                <option value="Salary">💻Salary</option>
+                <option value="Entertainment">🎬Entertainment</option>
+                <option value="Other">📦Other</option>
               </select>
             </div>
             <div className="flex items-center py-4 justify-between">
-              <button className="bg-surface px-4 py-2 rounded-2xl cursor-pointer">
+              <button
+                onClick={() => (setCategory("all"), setType("all"),setFilterTransaction(null))}
+                className="bg-surface px-4 py-2 rounded-2xl cursor-pointer"
+              >
                 Clear
               </button>
-              <button className="bg-primary text-white px-4 py-2 rounded-2xl cursor-pointer">
+              <button
+                onClick={transactionFilter}
+                className="bg-primary text-white px-4 py-2 rounded-2xl cursor-pointer"
+              >
                 Apply
               </button>
             </div>
@@ -253,84 +306,39 @@ const Transactions = () => {
         </div>
 
         {/* desktop */}
-        {allTransaction.map((item) => {
-          return (
-            <ul
-              key={item._id}
-              className="hidden md:flex items-center justify-between py-4 border-b border-b-gray-100"
-            >
-              <li className="flex items-center gap-1 w-34 min-w-0">
-                <div>{categoryLabels[item.category]}</div>
-                <div className="truncate text-text-primary">{item.title}</div>
-              </li>
-              <li className=" w-28 text-center">{item.category}</li>
-              <li className=" w-28 text-center">
-                {new Date(item.date).toLocaleDateString()}
-              </li>
-              <li
-                className={
-                  item.type === "Income"
-                    ? "w-28 text-center text-success"
-                    : "w-28 text-center text-danger"
-                }
+        {transactionsToRender.length === 0 ? (
+          <ul className="hidden md:flex items-center justify-center h-58">
+            <li className="text-2xl text-text-secondary">
+              No Transactions Found
+            </li>
+          </ul>
+        ) : (
+          transactionsToRender.map((item) => {
+            return (
+              <ul
+                key={item._id}
+                className="hidden md:flex items-center justify-between py-4 border-b border-b-gray-100"
               >
-                {item.type === "Expense"
-                  ? "-₹" + item.amount
-                  : "+₹" + item.amount}
-              </li>
-              <li className="hidden sm:flex items-center gap-2">
-                <SquarePen
-                  onClick={() => (
-                    setShowAddTransaction(true),
-                    setSelectedTransactionId(item._id)
-                  )}
-                  className="cursor-pointer text-text-first"
-                  size={20}
-                />
-                <Trash2
-                  onClick={() => confirmDeleteTransaction(item._id)}
-                  className="cursor-pointer text-danger"
-                  size={20}
-                />
-              </li>
-            </ul>
-          );
-        })}
-
-        {/* mobile */}
-
-        {allTransaction.map((item) => {
-          return (
-            <ul
-              key={item._id}
-              className="flex md:hidden justify-between py-4 border-b border-b-gray-100"
-            >
-              <div className="">
-                <li className="flex items-centers gap-4">
+                <li className="flex items-center gap-1 w-34 min-w-0">
                   <div>{categoryLabels[item.category]}</div>
                   <div className="truncate text-text-primary">{item.title}</div>
                 </li>
-                <li className="py-1 w-28 text-center text-text-secondary text-sm">
-                  {item.category}
-                </li>
-                <li className="py-1 w-28 text-center text-text-secondary text-xs">
+                <li className=" w-28 text-center">{item.category}</li>
+                <li className=" w-28 text-center">
                   {new Date(item.date).toLocaleDateString()}
                 </li>
-              </div>
-
-              <div className="flex flex-col items-center justify-between">
                 <li
                   className={
                     item.type === "Income"
-                      ? "w-28 text-center text-success font-bold"
-                      : "w-28 text-center text-danger font-bold"
+                      ? "w-28 text-center text-success"
+                      : "w-28 text-center text-danger"
                   }
                 >
                   {item.type === "Expense"
                     ? "-₹" + item.amount
                     : "+₹" + item.amount}
                 </li>
-                <li className="flex items-center gap-8">
+                <li className="hidden sm:flex items-center gap-2">
                   <SquarePen
                     onClick={() => (
                       setShowAddTransaction(true),
@@ -345,10 +353,72 @@ const Transactions = () => {
                     size={20}
                   />
                 </li>
-              </div>
-            </ul>
-          );
-        })}
+              </ul>
+            );
+          })
+        )}
+
+        {/* mobile */}
+        {transactionsToRender.length === 0 ? (
+          <ul className="flex md:hidden items-center justify-center h-58">
+            <li className="text-2xl text-text-secondary">
+              No Transactions Found
+            </li>
+          </ul>
+        ) : (
+          transactionsToRender.map((item) => {
+            return (
+              <ul
+                key={item._id}
+                className="flex md:hidden justify-between py-4 border-b border-b-gray-100"
+              >
+                <div className="">
+                  <li className="flex items-centers gap-4">
+                    <div>{categoryLabels[item.category]}</div>
+                    <div className="truncate text-text-primary">
+                      {item.title}
+                    </div>
+                  </li>
+                  <li className="py-1 w-28 text-center text-text-secondary text-sm">
+                    {item.category}
+                  </li>
+                  <li className="py-1 w-28 text-center text-text-secondary text-xs">
+                    {new Date(item.date).toLocaleDateString()}
+                  </li>
+                </div>
+
+                <div className="flex flex-col items-center justify-between">
+                  <li
+                    className={
+                      item.type === "Income"
+                        ? "w-28 text-center text-success font-bold"
+                        : "w-28 text-center text-danger font-bold"
+                    }
+                  >
+                    {item.type === "Expense"
+                      ? "-₹" + item.amount
+                      : "+₹" + item.amount}
+                  </li>
+                  <li className="flex items-center gap-8">
+                    <SquarePen
+                      onClick={() => (
+                        setShowAddTransaction(true),
+                        setSelectedTransactionId(item._id)
+                      )}
+                      className="cursor-pointer text-text-first"
+                      size={20}
+                    />
+                    <Trash2
+                      onClick={() => confirmDeleteTransaction(item._id)}
+                      className="cursor-pointer text-danger"
+                      size={20}
+                    />
+                  </li>
+                </div>
+              </ul>
+            );
+          })
+        )}
       </div>
 
       {/* modal section  */}
