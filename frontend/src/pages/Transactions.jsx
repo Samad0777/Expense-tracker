@@ -10,6 +10,7 @@ import {
 import { useEffect, useState } from "react";
 import Modal from "../components/Ui/Modal";
 import useTransactions from "../hook/useTransactions";
+import Pagination from "../components/Ui/Pagination";
 import { useForm } from "react-hook-form";
 
 const Transactions = () => {
@@ -32,12 +33,15 @@ const Transactions = () => {
   const [type, setType] = useState("all");
   const [category, setCategory] = useState("all");
   const [filterTransaction, setFilterTransaction] = useState(null);
+  const [allTransactions, setallTransactions] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const limit = 10;
   const {
-    fetchTransactionsHandler,
     createTransactionHandler,
-    allTransaction,
     deleteTransactionHandler,
     editTransactionHandler,
+    fetchPaginatedTransactionsHandler,
     loading,
   } = useTransactions();
 
@@ -79,11 +83,9 @@ const Transactions = () => {
       }
 
       reset();
+      await fetchPaginatedTransaction(currentPage);
       setSelectedTransactionId(null);
       setShowAddTransaction(false);
-
-      await fetchTransactionsHandler();
-
       return response;
     } catch (err) {
       console.log(err.message);
@@ -101,21 +103,13 @@ const Transactions = () => {
       const response = await deleteTransactionHandler(id);
       setTransactionDelete(false);
       setSelectedTransactionId(null);
-      await fetchTransactionsHandler();
+      await fetchPaginatedTransaction(currentPage);
       return response;
     } catch (err) {
       console.log(err.message);
     }
   };
 
-  useEffect(() => {
-    //fetching data
-    const fetchTransactions = async () => {
-      await fetchTransactionsHandler();
-    };
-
-    fetchTransactions();
-  }, []);
 
   //editing transaction
 
@@ -124,7 +118,7 @@ const Transactions = () => {
   useEffect(() => {
     if (!selectedTransactionId) return;
 
-    const transaction = allTransaction.find(
+    const transaction = allTransactions.find(
       (item) => item._id === selectedTransactionId,
     );
 
@@ -138,7 +132,7 @@ const Transactions = () => {
         description: transaction.description,
       });
     }
-  }, [selectedTransactionId, allTransaction, reset]);
+  }, [selectedTransactionId, allTransactions, reset]);
 
   const openAddTransaction = () => {
     setSelectedTransactionId(null);
@@ -159,14 +153,10 @@ const Transactions = () => {
     setSelectedTransactionId(null);
     reset();
   };
-  // console.log(allTransaction);
-  // console.log(type);
-  // console.log(category);
 
   //filter function
-
   const transactionFilter = () => {
-    const filtered = allTransaction.filter((item) => {
+    const filtered = allTransactions.filter((item) => {
       const typeMatches = type === "all" || item.type === type;
 
       const categoryMatches = category === "all" || item.category === category;
@@ -176,8 +166,29 @@ const Transactions = () => {
     setFilterTransaction(filtered);
     setShowFilter(false);
   };
+  const transactionsToRender = filterTransaction ?? allTransactions;
 
-  const transactionsToRender = filterTransaction ?? allTransaction;
+  //pagination functionality
+  const fetchPaginatedTransaction = async (pageNum) => {
+    try {
+      const response = await fetchPaginatedTransactionsHandler(pageNum, limit);
+
+      setCurrentPage(response.data.currentPage);
+      setTotalPages(response.data.totalPages);
+      setallTransactions(response.data.transactions);
+      return response;
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
+
+  const handlePageChange = (page) => {
+    fetchPaginatedTransaction(page);
+  };
+  
+  useEffect(() => {
+    fetchPaginatedTransaction(1);
+  }, []);
 
   return (
     <main className="md:p-4 bg-background h-screen">
@@ -272,7 +283,11 @@ const Transactions = () => {
             </div>
             <div className="flex items-center py-4 justify-between">
               <button
-                onClick={() => (setCategory("all"), setType("all"),setFilterTransaction(null))}
+                onClick={() => (
+                  setCategory("all"),
+                  setType("all"),
+                  setFilterTransaction(null)
+                )}
                 className="bg-surface px-4 py-2 rounded-2xl cursor-pointer"
               >
                 Clear
@@ -420,6 +435,13 @@ const Transactions = () => {
           })
         )}
       </div>
+
+      {/* page numbers  */}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+      />
 
       {/* modal section  */}
       {showAddTransaction && (
