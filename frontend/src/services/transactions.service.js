@@ -78,3 +78,15 @@ export const editTransactionService = async (
     throw err;
   }
 };
+
+//pagination
+export const fetchPaginatedTransactionsService = async (pageNum, limit) => {
+  try {
+    const response = await api.get(
+      `/transactions?page=${pageNum}&limit=${limit}`,
+    );
+    return response.data;
+  } catch (err) {
+    throw err;
+  }
+};
