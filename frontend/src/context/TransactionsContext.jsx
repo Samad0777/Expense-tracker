@@ -1,34 +1,44 @@
 import { createContext, useEffect, useState } from "react";
 import {
-  fetchTransactionsService,
   dashboardSumaaryService,
   createTransactionService,
   deleteTransactionService,
   editTransactionService,
-  fetchPaginatedTransactionsService,
+  getTransactionsService,
 } from "../services/transactions.service";
 
 export const TransactionsContext = createContext();
 
 const TransactionsContextProvider = ({ children }) => {
   const [dashboardSummary, setDashboardSummary] = useState([]);
-  const [allTransaction, setAllTransaction] = useState([]);
-  const [totalTransaction, setTotalTransaction] = useState([]);
+  const [totalTransactions, setTotalTransactions] = useState([]);
+  const [allTransaction, setallTransaction] = useState([]);
   const [dashboardLoading, setDashboardLoading] = useState(true);
   const [loading, setLoading] = useState(false);
 
   //fetching data
-  const fetchTransactionsHandler = async () => {
+  const getTransactionsHandler = async (
+    page,
+    limit,
+    search,
+    type,
+    category,
+  ) => {
     setLoading(true);
     try {
-      const response = await fetchTransactionsService();
-      setAllTransaction(response.data.transactions);
-      setTotalTransaction(response.data.totalTransactions);
-      return response.data.transactions;
+      const response = await getTransactionsService(
+        page,
+        limit,
+        search,
+        type,
+        category,
+      );
+      setTotalTransactions(response.data.totalTransactions);
+      setallTransaction(response.data.transactions);
+      return response;
     } catch (err) {
       throw err;
-      
-    }finally{
+    } finally {
       setLoading(false);
     }
   };
@@ -115,29 +125,15 @@ const TransactionsContextProvider = ({ children }) => {
     }
   };
 
-  //pagination Handler
-  const fetchPaginatedTransactionsHandler = async (pageNum, limit) => {
-    setLoading(true);
-    try {
-      const response = await fetchPaginatedTransactionsService(pageNum, limit);
-      return response;
-    } catch (err) {
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <TransactionsContext.Provider
       value={{
-        fetchTransactionsHandler,
+        getTransactionsHandler,
         createTransactionHandler,
         deleteTransactionHandler,
         editTransactionHandler,
-        fetchPaginatedTransactionsHandler,
+        totalTransactions,
         allTransaction,
-        totalTransaction,
         dashboardSummaryHandler,
         dashboardSummary,
         dashboardLoading,
