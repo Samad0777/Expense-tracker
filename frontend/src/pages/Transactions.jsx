@@ -10,6 +10,7 @@ import {
 import { useEffect, useState } from "react";
 import Modal from "../components/Ui/Modal";
 import useTransactions from "../hook/useTransactions";
+import Pagination from "../components/Ui/Pagination";
 import { useForm } from "react-hook-form";
 
 const Transactions = () => {
@@ -26,18 +27,25 @@ const Transactions = () => {
   });
 
   const [showFilter, setShowFilter] = useState(false);
+  const [appliedType, setAppliedType] = useState("");
+  const [appliedCategory, setAppliedCategory] = useState("");
   const [showAddTransaction, setShowAddTransaction] = useState(false);
   const [transactionDelete, setTransactionDelete] = useState(false);
   const [selectedTransactionId, setSelectedTransactionId] = useState(null);
   const [type, setType] = useState("all");
   const [category, setCategory] = useState("all");
-  const [filterTransaction, setFilterTransaction] = useState(null);
+  const [editTransaction, setEditTransaction] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const limit = 10;
   const {
-    fetchTransactionsHandler,
-    createTransactionHandler,
+    getTransactionsHandler,
     allTransaction,
+    createTransactionHandler,
     deleteTransactionHandler,
     editTransactionHandler,
+    fetchPaginatedTransactionsHandler,
+    totalTransactions,
     loading,
   } = useTransactions();
 
@@ -79,11 +87,9 @@ const Transactions = () => {
       }
 
       reset();
+      getTransactions(currentPage, limit, "", "", "");
       setSelectedTransactionId(null);
       setShowAddTransaction(false);
-
-      await fetchTransactionsHandler();
-
       return response;
     } catch (err) {
       console.log(err.message);
@@ -101,21 +107,21 @@ const Transactions = () => {
       const response = await deleteTransactionHandler(id);
       setTransactionDelete(false);
       setSelectedTransactionId(null);
-      await fetchTransactionsHandler();
+      const fetchResponse = await getTransactions(
+        currentPage,
+        limit,
+        "",
+        "",
+        "",
+      );
+      if (currentPage > fetchResponse.data.totalPages) {
+        await getTransactions(fetchResponse.data.totalPages, limit, "", "", "");
+      }
       return response;
     } catch (err) {
       console.log(err.message);
     }
   };
-
-  useEffect(() => {
-    //fetching data
-    const fetchTransactions = async () => {
-      await fetchTransactionsHandler();
-    };
-
-    fetchTransactions();
-  }, []);
 
   //editing transaction
 
@@ -124,7 +130,7 @@ const Transactions = () => {
   useEffect(() => {
     if (!selectedTransactionId) return;
 
-    const transaction = allTransaction.find(
+    const transaction = editTransaction.find(
       (item) => item._id === selectedTransactionId,
     );
 
@@ -138,7 +144,7 @@ const Transactions = () => {
         description: transaction.description,
       });
     }
-  }, [selectedTransactionId, allTransaction, reset]);
+  }, [selectedTransactionId, editTransaction, reset]);
 
   const openAddTransaction = () => {
     setSelectedTransactionId(null);
@@ -159,31 +165,53 @@ const Transactions = () => {
     setSelectedTransactionId(null);
     reset();
   };
-  // console.log(allTransaction);
-  // console.log(type);
-  // console.log(category);
 
-  //filter function
+  //fetching data and search filter
+  const getTransactions = async (page, limit, search, type, category) => {
+    try {
+      const response = await getTransactionsHandler(
+        page,
+        limit,
+        search,
+        type,
+        category,
+      );
+      setCurrentPage(response.data.currentPage);
+      setTotalPages(response.data.totalPages);
+      setEditTransaction(response.data.transactions);
+      return response;
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
 
-  const transactionFilter = () => {
-    const filtered = allTransaction.filter((item) => {
-      const typeMatches = type === "all" || item.type === type;
+  const handleNext = () => {
+    setCurrentPage((prev) => prev + 1);
+  };
 
-      const categoryMatches = category === "all" || item.category === category;
+  const handlePrevious = () => {
+    setCurrentPage((prev) => prev - 1);
+  };
 
-      return typeMatches && categoryMatches;
-    });
-    setFilterTransaction(filtered);
+  // filtering
+
+  const filteredTransaction = async () => {
+    const types = type === "all" ? "" : type;
+    const categories = category === "all" ? "" : category;
+    setAppliedCategory(categories);
+    setAppliedType(types);
     setShowFilter(false);
   };
 
-  const transactionsToRender = filterTransaction ?? allTransaction;
+  useEffect(() => {
+    getTransactions(currentPage, limit, "", appliedType, appliedCategory);
+  }, [currentPage, appliedType, appliedCategory]);
 
   return (
     <main className="md:p-4 bg-background h-screen">
       <div className="flex flex-col md:flex-row gap-8 items-center justify-between">
         <h2 className="text-text-secondary mt-4 mb-4">
-          {transactionsToRender.length} transactions found
+          {totalTransactions} transactions found
         </h2>
         <button
           onClick={openAddTransaction}
@@ -272,13 +300,13 @@ const Transactions = () => {
             </div>
             <div className="flex items-center py-4 justify-between">
               <button
-                onClick={() => (setCategory("all"), setType("all"),setFilterTransaction(null))}
+                onClick={() => (setCategory("all"), setType("all"))}
                 className="bg-surface px-4 py-2 rounded-2xl cursor-pointer"
               >
                 Clear
               </button>
               <button
-                onClick={transactionFilter}
+                onClick={filteredTransaction}
                 className="bg-primary text-white px-4 py-2 rounded-2xl cursor-pointer"
               >
                 Apply
@@ -306,14 +334,14 @@ const Transactions = () => {
         </div>
 
         {/* desktop */}
-        {transactionsToRender.length === 0 ? (
+        {allTransaction.length === 0 ? (
           <ul className="hidden md:flex items-center justify-center h-58">
             <li className="text-2xl text-text-secondary">
               No Transactions Found
             </li>
           </ul>
         ) : (
-          transactionsToRender.map((item) => {
+          allTransaction.map((item) => {
             return (
               <ul
                 key={item._id}
@@ -359,14 +387,14 @@ const Transactions = () => {
         )}
 
         {/* mobile */}
-        {transactionsToRender.length === 0 ? (
+        {allTransaction.length === 0 ? (
           <ul className="flex md:hidden items-center justify-center h-58">
             <li className="text-2xl text-text-secondary">
               No Transactions Found
             </li>
           </ul>
         ) : (
-          transactionsToRender.map((item) => {
+          allTransaction.map((item) => {
             return (
               <ul
                 key={item._id}
@@ -420,6 +448,15 @@ const Transactions = () => {
           })
         )}
       </div>
+
+      {/* page numbers  */}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        handlePrevious={handlePrevious}
+        handleNext={handleNext}
+        loading={loading}
+      />
 
       {/* modal section  */}
       {showAddTransaction && (

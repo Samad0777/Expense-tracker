@@ -1,15 +1,5 @@
 import api from "./axios";
 
-//fetching data
-export const fetchTransactionsService = async () => {
-  try {
-    const response = await api.get("/transactions/");
-    return response.data;
-  } catch (err) {
-    throw err;
-  }
-};
-
 //dashboard summary
 export const dashboardSumaaryService = async () => {
   try {
@@ -72,6 +62,24 @@ export const editTransactionService = async (
       category,
       date,
       description,
+    });
+    return response.data;
+  } catch (err) {
+    throw err;
+  }
+};
+
+//fetching data
+export const getTransactionsService = async (
+  page,
+  limit,
+  search,
+  type,
+  category,
+) => {
+  try {
+    const response = await api.get("/transactions", {
+      params: { page, limit, search, type, category },
     });
     return response.data;
   } catch (err) {
