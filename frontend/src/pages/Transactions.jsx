@@ -27,6 +27,8 @@ const Transactions = () => {
   });
 
   const [showFilter, setShowFilter] = useState(false);
+  const [appliedType, setAppliedType] = useState("");
+  const [appliedCategory, setAppliedCategory] = useState("");
   const [showAddTransaction, setShowAddTransaction] = useState(false);
   const [transactionDelete, setTransactionDelete] = useState(false);
   const [selectedTransactionId, setSelectedTransactionId] = useState(null);
@@ -164,7 +166,6 @@ const Transactions = () => {
     reset();
   };
 
-
   //fetching data and search filter
   const getTransactions = async (page, limit, search, type, category) => {
     try {
@@ -193,15 +194,18 @@ const Transactions = () => {
   };
 
   // filtering
+
   const filteredTransaction = async () => {
+    const types = type === "all" ? "" : type;
+    const categories = category === "all" ? "" : category;
+    setAppliedCategory(categories);
+    setAppliedType(types);
     setShowFilter(false);
   };
 
   useEffect(() => {
-    const types = type === "all" ? "" : type;
-    const categories = category === "all" ? "" : category;
-    getTransactions(currentPage, limit, "", types, categories);
-  }, [currentPage, type, category]);
+    getTransactions(currentPage, limit, "", appliedType, appliedCategory);
+  }, [currentPage, appliedType, appliedCategory]);
 
   return (
     <main className="md:p-4 bg-background h-screen">
@@ -296,16 +300,13 @@ const Transactions = () => {
             </div>
             <div className="flex items-center py-4 justify-between">
               <button
-                onClick={() => (
-                  setCategory("all"),
-                  setType("all")
-                )}
+                onClick={() => (setCategory("all"), setType("all"))}
                 className="bg-surface px-4 py-2 rounded-2xl cursor-pointer"
               >
                 Clear
               </button>
               <button
-              onClick={filteredTransaction}
+                onClick={filteredTransaction}
                 className="bg-primary text-white px-4 py-2 rounded-2xl cursor-pointer"
               >
                 Apply
