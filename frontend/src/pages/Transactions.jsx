@@ -103,13 +103,15 @@ const Transactions = () => {
       const response = await deleteTransactionHandler(id);
       setTransactionDelete(false);
       setSelectedTransactionId(null);
-      await fetchPaginatedTransaction(currentPage);
+      const fetchResponse = await fetchPaginatedTransaction(currentPage);
+      if (currentPage > fetchResponse.data.totalPages) {
+        await fetchPaginatedTransaction(fetchResponse.data.totalPages);
+      }
       return response;
     } catch (err) {
       console.log(err.message);
     }
   };
-
 
   //editing transaction
 
@@ -172,7 +174,6 @@ const Transactions = () => {
   const fetchPaginatedTransaction = async (pageNum) => {
     try {
       const response = await fetchPaginatedTransactionsHandler(pageNum, limit);
-
       setCurrentPage(response.data.currentPage);
       setTotalPages(response.data.totalPages);
       setallTransactions(response.data.transactions);
@@ -182,13 +183,17 @@ const Transactions = () => {
     }
   };
 
-  const handlePageChange = (page) => {
-    fetchPaginatedTransaction(page);
-  };
-  
+  const handleNext = () => {
+  setCurrentPage((prev) => prev + 1);
+};
+
+const handlePrevious = () => {
+  setCurrentPage((prev) => prev - 1);
+};
+
   useEffect(() => {
-    fetchPaginatedTransaction(1);
-  }, []);
+    fetchPaginatedTransaction(currentPage);
+  }, [currentPage]);
 
   return (
     <main className="md:p-4 bg-background h-screen">
@@ -440,7 +445,10 @@ const Transactions = () => {
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
-        onPageChange={handlePageChange}
+        handlePrevious={handlePrevious}
+        handleNext={handleNext}
+        loading={loading}
+        
       />
 
       {/* modal section  */}
