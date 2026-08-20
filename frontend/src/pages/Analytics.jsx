@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Card from "../components/Ui/Card";
 import {
   Bar,
@@ -14,16 +14,23 @@ import {
   YAxis,
   Cell,
 } from "recharts";
+import useTransaction from "../hook/useTransactions";
 
 const Analytics = () => {
-  const data = [
-    { month: "Mar", income: 0, expenses: 0, savings: 50 },
-    { month: "Apr", income: 0, expenses: 0, savings: 10 },
-    { month: "May", income: 100, expenses: 50, savings: 100 },
-    { month: "Jun", income: 5500, expenses: 2700, savings: 120 },
-    { month: "Jul", income: 6700, expenses: 2750, savings: 700 },
-    { month: "Aug", income: 6700, expenses: 2400, savings: 400 },
-  ];
+  const { getMonthlyAnalyticsHandler, monthlyAnalytics } = useTransaction();
+
+  const getMonthlyAnalytics = async () => {
+    try {
+      const response = await getMonthlyAnalyticsHandler();
+      return response;
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
+
+  useEffect(() => {
+    getMonthlyAnalytics();
+  }, []);
 
   const pieData = [
     { category: "Food & Dining", amount: 1200 },
@@ -67,7 +74,7 @@ const Analytics = () => {
       <div className="bg-surface min-h-96 rounded-2xl shadow-2xl mt-10 mb-10 py-6 px-4">
         <h2 className="text-xl font-semibold mt-4 mb-4">Income vs Expenses</h2>
         <ResponsiveContainer width="100%" height={300}>
-          <BarChart width={700} height={300} data={data}>
+          <BarChart width={700} height={300} data={monthlyAnalytics}>
             <XAxis dataKey="month" />
             <YAxis />
             <CartesianGrid strokeDasharray="3 3" />
@@ -97,7 +104,7 @@ const Analytics = () => {
       <div className="bg-surface min-h-96 rounded-2xl shadow-2xl mt-10 mb-10 py-6 px-4">
         <h2 className="text-xl font-semibold mt-4 mb-4">Savings Trend</h2>
         <ResponsiveContainer width="100%" height={300}>
-          <LineChart width={700} height={300} data={data}>
+          <LineChart width={700} height={300} data={monthlyAnalytics}>
             <XAxis dataKey="month" />
             <YAxis />
             <CartesianGrid strokeDasharray="3 3" />
@@ -117,26 +124,26 @@ const Analytics = () => {
         <h2 className="text-xl font-semibold mt-4 mb-4">Expense Breakdown</h2>
         <div className="flex items-center justify-center flex-col md:flex-row md:px-10">
           <div className="w-full md:w-1/2">
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart width={700} height={300}>
-              <Pie
-                data={pieData}
-                dataKey="amount"
-                nameKey="category"
-                innerRadius={70}
-                outerRadius={110}
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart width={700} height={300}>
+                <Pie
+                  data={pieData}
+                  dataKey="amount"
+                  nameKey="category"
+                  innerRadius={70}
+                  outerRadius={110}
                 >
-                {pieData.map((entry, index) => (
-                  <Cell
-                    key={entry.category}
-                    fill={COLORS[index % COLORS.length]}
+                  {pieData.map((entry, index) => (
+                    <Cell
+                      key={entry.category}
+                      fill={COLORS[index % COLORS.length]}
                     />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
-      </div>
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
 
           <div className="flex flex-col gap-3">
             {pieData.map((item, index) => (
