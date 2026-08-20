@@ -22,7 +22,7 @@ const Pagination = ({
       <p className="bg-white px-2 py-1 rounded-md">{totalPages}</p>
 
       <button
-        disabled={totalPages === currentPage || loading}
+        disabled={currentPage === totalPages || totalPages === 0 || loading}
         onClick={handleNext}
         className="px-3 py-2 rounded-md bg-background disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
       >
