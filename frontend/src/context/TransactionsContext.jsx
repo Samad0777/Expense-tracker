@@ -5,6 +5,7 @@ import {
   deleteTransactionService,
   editTransactionService,
   getTransactionsService,
+  getMonthlyAnalyticsService,
 } from "../services/transactions.service";
 
 export const TransactionsContext = createContext();
@@ -13,6 +14,7 @@ const TransactionsContextProvider = ({ children }) => {
   const [dashboardSummary, setDashboardSummary] = useState([]);
   const [totalTransactions, setTotalTransactions] = useState([]);
   const [allTransaction, setallTransaction] = useState([]);
+  const [monthlyAnalytics, setMonthlyAnalytics] = useState([]);
   const [dashboardLoading, setDashboardLoading] = useState(true);
   const [loading, setLoading] = useState(false);
 
@@ -125,6 +127,17 @@ const TransactionsContextProvider = ({ children }) => {
     }
   };
 
+  //monthly analytics
+  const getMonthlyAnalyticsHandler = async () => {
+    try {
+      const response = await getMonthlyAnalyticsService();
+      setMonthlyAnalytics(response.data);
+      return response.data;
+    } catch (err) {
+      throw err;
+    }
+  };
+
   return (
     <TransactionsContext.Provider
       value={{
@@ -132,9 +145,11 @@ const TransactionsContextProvider = ({ children }) => {
         createTransactionHandler,
         deleteTransactionHandler,
         editTransactionHandler,
+        dashboardSummaryHandler,
+        getMonthlyAnalyticsHandler,
+        monthlyAnalytics,
         totalTransactions,
         allTransaction,
-        dashboardSummaryHandler,
         dashboardSummary,
         dashboardLoading,
         loading,
