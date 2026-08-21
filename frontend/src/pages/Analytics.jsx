@@ -60,11 +60,11 @@ const Analytics = () => {
   }, 0);
 
   const monthlyIncomeAverage =
-    monthlyAnalytics.length > 0 ? totalIncome / monthlyAnalytics.length : 0;
+    monthlyAnalytics.length > 0 ? Math.round( totalIncome / monthlyAnalytics.length) : 0;
   const monthlyExpenseAverage =
-    monthlyAnalytics.length > 0 ? totalExpense / monthlyAnalytics.length : 0;
+    monthlyAnalytics.length > 0 ?  Math.round(totalExpense / monthlyAnalytics.length) : 0;
   const monthlySavingsAverage =
-    monthlyAnalytics.length > 0 ? totalSavings / monthlyAnalytics.length : 0;
+    monthlyAnalytics.length > 0 ?  Math.round(totalSavings / monthlyAnalytics.length) : 0;
   const savings = totalIncome - totalExpense;
   const savingsRate =
     monthlyAnalytics.length > 0 ? (savings / totalIncome) * 100 : 0;
