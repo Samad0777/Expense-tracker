@@ -6,6 +6,7 @@ import {
   editTransactionService,
   getTransactionsService,
   getMonthlyAnalyticsService,
+  getCategoryBreakdownAnalyticsService,
 } from "../services/transactions.service";
 
 export const TransactionsContext = createContext();
@@ -15,6 +16,7 @@ const TransactionsContextProvider = ({ children }) => {
   const [totalTransactions, setTotalTransactions] = useState([]);
   const [allTransaction, setallTransaction] = useState([]);
   const [monthlyAnalytics, setMonthlyAnalytics] = useState([]);
+  const [categoryBreakdownData, setCategoryBreakdownData] = useState([]);
   const [dashboardLoading, setDashboardLoading] = useState(true);
   const [loading, setLoading] = useState(false);
 
@@ -138,6 +140,17 @@ const TransactionsContextProvider = ({ children }) => {
     }
   };
 
+  // getCategory Breakdown Analytics
+  const getCategoryBreakdownAnalyticsHandler = async()=>{
+    try{
+      const response = await getCategoryBreakdownAnalyticsService();
+      setCategoryBreakdownData(response.data);
+      return response.data;
+    }catch(err){
+      throw err;
+    }
+  } 
+
   return (
     <TransactionsContext.Provider
       value={{
@@ -147,6 +160,8 @@ const TransactionsContextProvider = ({ children }) => {
         editTransactionHandler,
         dashboardSummaryHandler,
         getMonthlyAnalyticsHandler,
+        getCategoryBreakdownAnalyticsHandler,
+        categoryBreakdownData,
         monthlyAnalytics,
         totalTransactions,
         allTransaction,

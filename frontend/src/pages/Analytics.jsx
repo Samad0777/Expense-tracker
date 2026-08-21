@@ -17,7 +17,12 @@ import {
 import useTransaction from "../hook/useTransactions";
 
 const Analytics = () => {
-  const { getMonthlyAnalyticsHandler, monthlyAnalytics } = useTransaction();
+  const {
+    getMonthlyAnalyticsHandler,
+    monthlyAnalytics,
+    getCategoryBreakdownAnalyticsHandler,
+    categoryBreakdownData,
+  } = useTransaction();
 
   const getMonthlyAnalytics = async () => {
     try {
@@ -28,17 +33,19 @@ const Analytics = () => {
     }
   };
 
+  const getCategoryBreakdownAnalytics = async () => {
+    try {
+      const response = await getCategoryBreakdownAnalyticsHandler();
+      return response;
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
+  
   useEffect(() => {
     getMonthlyAnalytics();
+    getCategoryBreakdownAnalytics();
   }, []);
-
-  const pieData = [
-    { category: "Food & Dining", amount: 1200 },
-    { category: "Shopping", amount: 800 },
-    { category: "Bills", amount: 600 },
-    { category: "Transport", amount: 400 },
-    { category: "Entertainment", amount: 300 },
-  ];
 
   const COLORS = ["#7e22ff", "#24C55F", "#F87419", "#6366F1", "#06b6d4"];
 
@@ -127,13 +134,13 @@ const Analytics = () => {
             <ResponsiveContainer width="100%" height={300}>
               <PieChart width={700} height={300}>
                 <Pie
-                  data={pieData}
-                  dataKey="amount"
+                  data={categoryBreakdownData}
+                  dataKey="total"
                   nameKey="category"
                   innerRadius={70}
                   outerRadius={110}
                 >
-                  {pieData.map((entry, index) => (
+                  {categoryBreakdownData.map((entry, index) => (
                     <Cell
                       key={entry.category}
                       fill={COLORS[index % COLORS.length]}
@@ -146,7 +153,7 @@ const Analytics = () => {
           </div>
 
           <div className="flex flex-col gap-3">
-            {pieData.map((item, index) => (
+            {categoryBreakdownData.map((item, index) => (
               <div
                 key={item.category}
                 className="flex items-center justify-between gap-8"
@@ -160,7 +167,7 @@ const Analytics = () => {
                   <p>{item.category}</p>
                 </div>
 
-                <p>₹{item.amount}</p>
+                <p>₹{item.total}</p>
               </div>
             ))}
           </div>
