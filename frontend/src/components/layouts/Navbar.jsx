@@ -1,6 +1,6 @@
 import React from "react";
 import { User,Menu } from "lucide-react";
-import { useLocation } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 
 const Navbar = ({onMenuClick}) => {
   const location = useLocation();
@@ -24,12 +24,14 @@ const Navbar = ({onMenuClick}) => {
 
     {/* mobile */}
     <nav  className="md:hidden bg-surface py-6 px-4 flex items-center justify-between shadow-lg">
-      <Menu onClick={onMenuClick} size={20}/>
+      <Menu onClick={onMenuClick} size={25}/>
       <div>
         <h2 className="text-2xl">{pageTitles[location.pathname]}</h2>
       </div>
       <div>
+        <NavLink to="/settings">
         <User className="cursor-pointer" />
+        </NavLink>
       </div>
     </nav>
     </>
