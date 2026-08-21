@@ -14,6 +14,10 @@ const Dashboard = () => {
     fetchSummary();
   }, []);
 
+  const netBalance = dashboardSummary.balance ?? 0;
+  const totalIncome = dashboardSummary.totalIncome ?? 0;
+  const totalExpense = dashboardSummary.totalExpense ?? 0;
+
   if (dashboardLoading){
     return (
       <main className="h-screen flex items-center justify-center">
@@ -22,25 +26,25 @@ const Dashboard = () => {
     )
   }
     return (
-      <main className="p-4 bg-background h-screen">
+      <main className="p-4 bg-background h-full">
         <div className="grid gap-4 md:grid-cols-2">
           <Card
             title="Net Balance"
-            amount={dashboardSummary.balance}
+            amount={netBalance}
             icon={Wallet}
             iconColor={"text-text-first"}
             iconBg={"bg-bg-first"}
           />
           <Card
             title="Total Income"
-            amount={dashboardSummary.totalIncome}
+            amount={totalIncome}
             icon={TrendingUp}
             iconColor={"text-text-second"}
             iconBg={"bg-bg-second"}
           />
           <Card
             title="Total Expenses"
-            amount={dashboardSummary.totalExpense}
+            amount={totalExpense}
             icon={TrendingDown}
             iconColor={"text-text-third"}
             iconBg={"bg-bg-third"}

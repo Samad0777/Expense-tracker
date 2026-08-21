@@ -86,3 +86,24 @@ export const getTransactionsService = async (
     throw err;
   }
 };
+
+// monthly analytics
+export const getMonthlyAnalyticsService = async () => {
+  try {
+    const response = await api.get("/transactions/analytics/monthly");
+    return response.data;
+  } catch (err) {
+    throw err;
+  }
+};
+
+
+//transactions analytics category-breakdown
+export const getCategoryBreakdownAnalyticsService = async()=>{
+  try{
+    const response = await api.get("/transactions/analytics/category-breakdown");
+    return response.data;
+  }catch(err){
+    throw err;
+  }
+}

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Card from "../components/Ui/Card";
 import {
   Bar,
@@ -14,26 +14,71 @@ import {
   YAxis,
   Cell,
 } from "recharts";
+import useTransaction from "../hook/useTransactions";
 
 const Analytics = () => {
-  const data = [
-    { month: "Mar", income: 0, expenses: 0, savings: 50 },
-    { month: "Apr", income: 0, expenses: 0, savings: 10 },
-    { month: "May", income: 100, expenses: 50, savings: 100 },
-    { month: "Jun", income: 5500, expenses: 2700, savings: 120 },
-    { month: "Jul", income: 6700, expenses: 2750, savings: 700 },
-    { month: "Aug", income: 6700, expenses: 2400, savings: 400 },
-  ];
+  const {
+    getMonthlyAnalyticsHandler,
+    monthlyAnalytics,
+    getCategoryBreakdownAnalyticsHandler,
+    categoryBreakdownData,
+  } = useTransaction();
 
-  const pieData = [
-    { category: "Food & Dining", amount: 1200 },
-    { category: "Shopping", amount: 800 },
-    { category: "Bills", amount: 600 },
-    { category: "Transport", amount: 400 },
-    { category: "Entertainment", amount: 300 },
-  ];
+  const getMonthlyAnalytics = async () => {
+    try {
+      const response = await getMonthlyAnalyticsHandler();
+      return response;
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
 
-  const COLORS = ["#7e22ff", "#24C55F", "#F87419", "#6366F1", "#06b6d4"];
+  const getCategoryBreakdownAnalytics = async () => {
+    try {
+      const response = await getCategoryBreakdownAnalyticsHandler();
+      return response;
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
+
+  useEffect(() => {
+    getMonthlyAnalytics();
+    getCategoryBreakdownAnalytics();
+  }, []);
+
+  const totalIncome = monthlyAnalytics.reduce((acc, crr) => {
+    return acc + crr.income;
+  }, 0);
+
+  const totalExpense = monthlyAnalytics.reduce((acc, crr) => {
+    return acc + crr.expenses;
+  }, 0);
+
+  const totalSavings = monthlyAnalytics.reduce((acc, crr) => {
+    return acc + crr.savings;
+  }, 0);
+
+  const monthlyIncomeAverage =
+    monthlyAnalytics.length > 0 ? Math.round( totalIncome / monthlyAnalytics.length) : 0;
+  const monthlyExpenseAverage =
+    monthlyAnalytics.length > 0 ?  Math.round(totalExpense / monthlyAnalytics.length) : 0;
+  const monthlySavingsAverage =
+    monthlyAnalytics.length > 0 ?  Math.round(totalSavings / monthlyAnalytics.length) : 0;
+  const savings = totalIncome - totalExpense;
+  const savingsRate =
+    monthlyAnalytics.length > 0 ? (savings / totalIncome) * 100 : 0;
+  const fixed = savingsRate.toFixed(2);
+
+  const COLORS = [
+    "#7e22ff",
+    "#24C55F",
+    "#F87419",
+    "#6366F1",
+    "#06b6d4",
+    "#E11D48",
+    "#EAB308",
+  ];
 
   return (
     <main className="md:p-4 p-4 bg-background h-screen">
@@ -43,22 +88,22 @@ const Analytics = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
         <Card
           title="Avg Monthly Income"
-          amount="4,346.52"
+          amount={monthlyIncomeAverage}
           amountColor="text-success"
         />
         <Card
           title="Avg Monthly Expenses"
-          amount="1,318.33"
+          amount={monthlyExpenseAverage}
           amountColor="text-text-third"
         />
         <Card
           title="Avg Monthly Savings"
-          amount="1,821.67"
+          amount={monthlySavingsAverage}
           amountColor="text-primary"
         />
         <Card
           title="Savings Rate"
-          amount="58.0%"
+          amount={fixed + "%"}
           amountColor="text-text-fourth"
         />
       </div>
@@ -67,7 +112,7 @@ const Analytics = () => {
       <div className="bg-surface min-h-96 rounded-2xl shadow-2xl mt-10 mb-10 py-6 px-4">
         <h2 className="text-xl font-semibold mt-4 mb-4">Income vs Expenses</h2>
         <ResponsiveContainer width="100%" height={300}>
-          <BarChart width={700} height={300} data={data}>
+          <BarChart width={700} height={300} data={monthlyAnalytics}>
             <XAxis dataKey="month" />
             <YAxis />
             <CartesianGrid strokeDasharray="3 3" />
@@ -97,7 +142,7 @@ const Analytics = () => {
       <div className="bg-surface min-h-96 rounded-2xl shadow-2xl mt-10 mb-10 py-6 px-4">
         <h2 className="text-xl font-semibold mt-4 mb-4">Savings Trend</h2>
         <ResponsiveContainer width="100%" height={300}>
-          <LineChart width={700} height={300} data={data}>
+          <LineChart width={700} height={300} data={monthlyAnalytics}>
             <XAxis dataKey="month" />
             <YAxis />
             <CartesianGrid strokeDasharray="3 3" />
@@ -117,29 +162,29 @@ const Analytics = () => {
         <h2 className="text-xl font-semibold mt-4 mb-4">Expense Breakdown</h2>
         <div className="flex items-center justify-center flex-col md:flex-row md:px-10">
           <div className="w-full md:w-1/2">
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart width={700} height={300}>
-              <Pie
-                data={pieData}
-                dataKey="amount"
-                nameKey="category"
-                innerRadius={70}
-                outerRadius={110}
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart width={700} height={300}>
+                <Pie
+                  data={categoryBreakdownData}
+                  dataKey="total"
+                  nameKey="category"
+                  innerRadius={70}
+                  outerRadius={110}
                 >
-                {pieData.map((entry, index) => (
-                  <Cell
-                    key={entry.category}
-                    fill={COLORS[index % COLORS.length]}
+                  {categoryBreakdownData.map((entry, index) => (
+                    <Cell
+                      key={entry.category}
+                      fill={COLORS[index % COLORS.length]}
                     />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
-      </div>
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
 
           <div className="flex flex-col gap-3">
-            {pieData.map((item, index) => (
+            {categoryBreakdownData.map((item, index) => (
               <div
                 key={item.category}
                 className="flex items-center justify-between gap-8"
@@ -153,7 +198,7 @@ const Analytics = () => {
                   <p>{item.category}</p>
                 </div>
 
-                <p>₹{item.amount}</p>
+                <p>₹{item.total}</p>
               </div>
             ))}
           </div>

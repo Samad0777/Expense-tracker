@@ -5,6 +5,8 @@ import {
   deleteTransactionService,
   editTransactionService,
   getTransactionsService,
+  getMonthlyAnalyticsService,
+  getCategoryBreakdownAnalyticsService,
 } from "../services/transactions.service";
 
 export const TransactionsContext = createContext();
@@ -13,6 +15,8 @@ const TransactionsContextProvider = ({ children }) => {
   const [dashboardSummary, setDashboardSummary] = useState([]);
   const [totalTransactions, setTotalTransactions] = useState([]);
   const [allTransaction, setallTransaction] = useState([]);
+  const [monthlyAnalytics, setMonthlyAnalytics] = useState([]);
+  const [categoryBreakdownData, setCategoryBreakdownData] = useState([]);
   const [dashboardLoading, setDashboardLoading] = useState(true);
   const [loading, setLoading] = useState(false);
 
@@ -125,6 +129,28 @@ const TransactionsContextProvider = ({ children }) => {
     }
   };
 
+  //monthly analytics
+  const getMonthlyAnalyticsHandler = async () => {
+    try {
+      const response = await getMonthlyAnalyticsService();
+      setMonthlyAnalytics(response.data);
+      return response.data;
+    } catch (err) {
+      throw err;
+    }
+  };
+
+  // getCategory Breakdown Analytics
+  const getCategoryBreakdownAnalyticsHandler = async()=>{
+    try{
+      const response = await getCategoryBreakdownAnalyticsService();
+      setCategoryBreakdownData(response.data);
+      return response.data;
+    }catch(err){
+      throw err;
+    }
+  } 
+
   return (
     <TransactionsContext.Provider
       value={{
@@ -132,9 +158,13 @@ const TransactionsContextProvider = ({ children }) => {
         createTransactionHandler,
         deleteTransactionHandler,
         editTransactionHandler,
+        dashboardSummaryHandler,
+        getMonthlyAnalyticsHandler,
+        getCategoryBreakdownAnalyticsHandler,
+        categoryBreakdownData,
+        monthlyAnalytics,
         totalTransactions,
         allTransaction,
-        dashboardSummaryHandler,
         dashboardSummary,
         dashboardLoading,
         loading,

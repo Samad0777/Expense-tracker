@@ -35,6 +35,8 @@ const Transactions = () => {
   const [type, setType] = useState("all");
   const [category, setCategory] = useState("all");
   const [editTransaction, setEditTransaction] = useState([]);
+  const [search, setSearch] = useState("");
+  const [searchedValue, setSearchedValue] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const limit = 10;
@@ -44,7 +46,6 @@ const Transactions = () => {
     createTransactionHandler,
     deleteTransactionHandler,
     editTransactionHandler,
-    fetchPaginatedTransactionsHandler,
     totalTransactions,
     loading,
   } = useTransactions();
@@ -87,7 +88,13 @@ const Transactions = () => {
       }
 
       reset();
-      getTransactions(currentPage, limit, "", "", "");
+      getTransactions(
+        currentPage,
+        limit,
+        searchedValue,
+        appliedType,
+        appliedCategory,
+      );
       setSelectedTransactionId(null);
       setShowAddTransaction(false);
       return response;
@@ -110,12 +117,18 @@ const Transactions = () => {
       const fetchResponse = await getTransactions(
         currentPage,
         limit,
-        "",
-        "",
-        "",
+        searchedValue,
+        appliedType,
+        appliedCategory,
       );
       if (currentPage > fetchResponse.data.totalPages) {
-        await getTransactions(fetchResponse.data.totalPages, limit, "", "", "");
+        await getTransactions(
+          fetchResponse.data.totalPages,
+          limit,
+          searchedValue,
+          appliedType,
+          appliedCategory,
+        );
       }
       return response;
     } catch (err) {
@@ -204,8 +217,24 @@ const Transactions = () => {
   };
 
   useEffect(() => {
-    getTransactions(currentPage, limit, "", appliedType, appliedCategory);
-  }, [currentPage, appliedType, appliedCategory]);
+    getTransactions(
+      currentPage,
+      limit,
+      searchedValue,
+      appliedType,
+      appliedCategory,
+    );
+  }, [currentPage, searchedValue, appliedType, appliedCategory]);
+
+  //search functionality using debouncing
+  useEffect(() => {
+    const response = setTimeout(() => {
+      setSearchedValue(search.trim());
+    }, 300);
+    return () => {
+      clearTimeout(response);
+    };
+  }, [search]);
 
   return (
     <main className="md:p-4 bg-background h-screen">
@@ -230,6 +259,7 @@ const Transactions = () => {
             className="bg-background w-full px-2 py-2 outline-none"
             name="search"
             type="text"
+            onChange={(e) => setSearch(e.target.value)}
             placeholder="Search..."
           />
         </div>
