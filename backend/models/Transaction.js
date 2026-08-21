@@ -34,7 +34,7 @@ const transactionSchema = new mongoose.Schema(
         "Shopping",
         "Bills",
         "Transport",
-        "Healthcare",
+        "Health",
         "Entertainment",
         "Salary",
         "Other",
