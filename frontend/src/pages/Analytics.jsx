@@ -41,11 +41,34 @@ const Analytics = () => {
       console.log(err.message);
     }
   };
-  
+
   useEffect(() => {
     getMonthlyAnalytics();
     getCategoryBreakdownAnalytics();
   }, []);
+
+  const totalIncome = monthlyAnalytics.reduce((acc, crr) => {
+    return acc + crr.income;
+  }, 0);
+
+  const totalExpense = monthlyAnalytics.reduce((acc, crr) => {
+    return acc + crr.expenses;
+  }, 0);
+
+  const totalSavings = monthlyAnalytics.reduce((acc, crr) => {
+    return acc + crr.savings;
+  }, 0);
+
+  const monthlyIncomeAverage =
+    monthlyAnalytics.length > 0 ? totalIncome / monthlyAnalytics.length : 0;
+  const monthlyExpenseAverage =
+    monthlyAnalytics.length > 0 ? totalExpense / monthlyAnalytics.length : 0;
+  const monthlySavingsAverage =
+    monthlyAnalytics.length > 0 ? totalSavings / monthlyAnalytics.length : 0;
+  const savings = totalIncome - totalExpense;
+  const savingsRate =
+    monthlyAnalytics.length > 0 ? (savings / totalIncome) * 100 : 0;
+  const fixed = savingsRate.toFixed(2);
 
   const COLORS = ["#7e22ff", "#24C55F", "#F87419", "#6366F1", "#06b6d4"];
 
@@ -57,22 +80,22 @@ const Analytics = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
         <Card
           title="Avg Monthly Income"
-          amount="4,346.52"
+          amount={monthlyIncomeAverage}
           amountColor="text-success"
         />
         <Card
           title="Avg Monthly Expenses"
-          amount="1,318.33"
+          amount={monthlyExpenseAverage}
           amountColor="text-text-third"
         />
         <Card
           title="Avg Monthly Savings"
-          amount="1,821.67"
+          amount={monthlySavingsAverage}
           amountColor="text-primary"
         />
         <Card
           title="Savings Rate"
-          amount="58.0%"
+          amount={fixed + "%"}
           amountColor="text-text-fourth"
         />
       </div>
