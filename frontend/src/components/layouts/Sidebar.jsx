@@ -68,7 +68,7 @@ const Sidebar = ({ isOpen,onMenuClick }) => {
         <aside className={`absolute z-50 w-56 h-screen shrink-0 bg-background-sidebar text-white px-4 md:hidden transition-transform duration-300`}>
           <div className="flex items-center justify-between border-b border-text-secondary px-2 py-8 mb-2">
             <h2>Expense Tracker</h2>
-            <X onClick={onMenuClick} className="text-text-secondary" size={20}/>
+            <X onClick={onMenuClick} className="text-text-secondary" size={25}/>
           </div>
           <h3 className="text-text-secondary">Menu</h3>
           <div className="flex flex-col gap-2 mt-4">
