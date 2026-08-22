@@ -3,6 +3,7 @@ import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useAuth } from "../hook/useAuth";
+import { toast } from "sonner";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -21,8 +22,10 @@ const Login = () => {
       const response = await loginHandler(data.email, data.password);
       reset();
       navigate("/dashboard");
+      toast.success("Login successfull.")
     } catch (err) {
       const message = "something went wrong. please try again.";
+      toast.error(err.response?.data?.message ?? message);
       setError("root", {
         type: "manual",
         message: err.response?.data?.message ?? message,

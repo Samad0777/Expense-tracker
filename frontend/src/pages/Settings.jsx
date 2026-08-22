@@ -1,13 +1,17 @@
 import React from "react";
 import { useAuth } from "../hook/useAuth";
+import { toast } from "sonner";
 
 const Settings = () => {
   const { logoutHandler, user } = useAuth();
   const logout = async () => {
     try {
       const response = await logoutHandler();
+      toast.success("Logout successfully.");
       return response;
     } catch (err) {
+      const message = "something went wrong. please try again.";
+      toast.error(err.response?.data?.message ?? message);
       console.log(err.message);
     }
   };
