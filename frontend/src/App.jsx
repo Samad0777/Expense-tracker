@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { toast, Toaster } from 'sonner';
 import { RouterProvider } from "react-router-dom";
 import { router } from "./routes/AppRoutes";
 import AuthContextProvider from "./context/AuthContext";
@@ -12,6 +12,7 @@ const App = () => {
           <RouterProvider router={router} />
         </TransactionsContextProvider>
       </AuthContextProvider>
+      <Toaster position='top-right' richColors/>
     </>
   );
 };
