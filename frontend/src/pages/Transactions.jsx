@@ -12,6 +12,7 @@ import Modal from "../components/Ui/Modal";
 import useTransactions from "../hook/useTransactions";
 import Pagination from "../components/Ui/Pagination";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 const Transactions = () => {
   const {
@@ -76,6 +77,7 @@ const Transactions = () => {
           data.date,
           data.description,
         );
+        toast.success("Updated successfully.");
       } else {
         response = await createTransactionHandler(
           data.title,
@@ -85,6 +87,7 @@ const Transactions = () => {
           data.date,
           data.description,
         );
+        toast.success("Created successfully.");
       }
 
       reset();
@@ -99,6 +102,8 @@ const Transactions = () => {
       setShowAddTransaction(false);
       return response;
     } catch (err) {
+      const message = "something went wrong. please try again.";
+      toast.error(err.response?.data?.message ?? message);
       console.log(err.message);
     }
   };
@@ -114,6 +119,7 @@ const Transactions = () => {
       const response = await deleteTransactionHandler(id);
       setTransactionDelete(false);
       setSelectedTransactionId(null);
+      toast.success("Deleted successfully.")
       const fetchResponse = await getTransactions(
         currentPage,
         limit,
@@ -132,6 +138,8 @@ const Transactions = () => {
       }
       return response;
     } catch (err) {
+      const message = "something went wrong. please try again.";
+      toast.error(err.response?.data?.message ?? message);
       console.log(err.message);
     }
   };
