@@ -1,8 +1,8 @@
 import {
   Plus,
   Search,
-  Funnel,
-  ChevronsUpDown,
+  FunnelPlus,
+  FunnelX,
   SquarePen,
   Trash2,
   X,
@@ -78,7 +78,7 @@ const Transactions = () => {
     Health: "💊",
     Salary: "💻",
     Entertainment: "🎬",
-    "Rent & Housing":"🏡",
+    "Rent & Housing": "🏡",
     Other: "📦",
   };
 
@@ -225,6 +225,9 @@ const Transactions = () => {
         appliedType,
         appliedCategory,
       );
+      if (fetchResponse.data.totalPages === 0) {
+        return;
+      }
       if (currentPage > fetchResponse.data.totalPages) {
         await getTransactions(
           fetchResponse.data.totalPages,
@@ -360,8 +363,9 @@ const Transactions = () => {
         </Button>
       </div>
 
-      {/* search and filter  */}
+      {/* Search and Filter */}
       <div className="relative flex items-center gap-4 bg-surface py-4 px-4 mt-4 mb-4 rounded-2xl">
+        {/* Search */}
         <div className="flex flex-1 items-center border px-4 rounded-xl bg-background">
           <Search size={20} className="text-text-secondary" />
           <input
@@ -372,25 +376,36 @@ const Transactions = () => {
             placeholder="Search..."
           />
         </div>
+        {/* Filter Button */}
         <div>
           <Button
             onClick={() => setShowFilter(!showFilter)}
             variant="normal"
             className="flex items-center gap-2 cursor-pointer bg-background px-4 py-4 rounded-xl"
           >
-            <Funnel size={20} />
-            <p>Filter</p>
+            {showFilter ? (
+              <div className="flex gap-2">
+                <FunnelX size={20} /> <p>Filter</p>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <FunnelPlus size={20} /> <p>Filter</p>
+              </div>
+            )}
           </Button>
         </div>
         {showFilter && (
-          <div onClick={() => setShowFilter(false)} className="fixed inset-0">
+          <div
+            onClick={() => setShowFilter(false)}
+            className="absolute right-4 top-full z-50 mt-2"
+          >
             <div
               onClick={(e) => e.stopPropagation()}
-              className="absolute right-10 top-79 md:right-15 md:top-60 p-4 rounded-2xl border bg-background"
+              className="p-4 rounded-2xl border bg-background shadow-lg"
             >
-              <h2 className="text-text-primary">Types</h2>
+              <h2 className="text-text-primary"> Types </h2>
               <div className="flex gap-4 text-text-secondary py-4">
-                <label>
+                <label className="cursor-pointer">
                   <input
                     onChange={(e) => setType(e.target.value)}
                     checked={type === "all"}
@@ -399,9 +414,9 @@ const Transactions = () => {
                     id="all"
                     value="all"
                   />
-                  All
+                  <span className="ml-1">All</span>
                 </label>
-                <label>
+                <label className="cursor-pointer">
                   <input
                     onChange={(e) => setType(e.target.value)}
                     checked={type === "Income"}
@@ -410,9 +425,9 @@ const Transactions = () => {
                     id="income"
                     value="Income"
                   />
-                  Income
+                  <span className="ml-1">Income</span>
                 </label>
-                <label>
+                <label className="cursor-pointer">
                   <input
                     onChange={(e) => setType(e.target.value)}
                     checked={type === "Expense"}
@@ -421,32 +436,35 @@ const Transactions = () => {
                     id="expense"
                     value="Expense"
                   />
-                  Expense
+                  <span className="ml-1">Expense</span>
                 </label>
               </div>
-              <h2 className="text-text-primary">Category</h2>
+              <h2 className="text-text-primary"> Category </h2>
               <div className="flex">
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="py-4 border-none outline-none cursor-pointer"
+                  className="py-4 border-none outline-none cursor-pointer bg-background"
                 >
                   <option value="all">All categories</option>
-                  <option value="Food">🍔Food & Dining</option>
-                  <option value="Shopping">🛍️Shopping</option>
-                  <option value="Transport">🚗Transport</option>
-                  <option value="Bills">💡Bills</option>
-                  <option value="Health">💊Health</option>
-                  <option value="Rent & Housing">🏡Rent & Housing</option>
-                  <option value="Salary">💻Salary</option>
-                  <option value="Entertainment">🎬Entertainment</option>
-                  <option value="Other">📦Other</option>
+                  <option value="Food">🍔 Food & Dining</option>
+                  <option value="Shopping">🛍️ Shopping</option>
+                  <option value="Transport">🚗 Transport</option>
+                  <option value="Bills">💡 Bills</option>
+                  <option value="Health">💊 Health</option>
+                  <option value="Rent & Housing">🏡 Rent & Housing</option>
+                  <option value="Salary">💻 Salary</option>
+                  <option value="Entertainment">🎬 Entertainment</option>
+                  <option value="Other">📦 Other</option>
                 </select>
               </div>
-              <div className="flex items-center py-4 justify-between">
+              <div className="flex items-center py-4 justify-between gap-4">
                 <Button
                   variant="normal"
-                  onClick={() => (setCategory("all"), setType("all"))}
+                  onClick={() => {
+                    setCategory("all");
+                    setType("all");
+                  }}
                   className="bg-surface px-4 py-2 rounded-2xl cursor-pointer"
                 >
                   Clear
@@ -469,19 +487,16 @@ const Transactions = () => {
         <div className="hidden md:flex justify-between items-center text-text-secondary">
           <p className="flex gap-2 items-center cursor-pointer hover:text-text-primary">
             Transaction
-            <ChevronsUpDown size={20} />
           </p>
 
           <p>Category</p>
 
           <p className="flex gap-2 items-center cursor-pointer hover:text-text-primary">
             Date
-            <ChevronsUpDown size={20} />
           </p>
 
           <p className="flex gap-2 items-center cursor-pointer hover:text-text-primary">
             Amount
-            <ChevronsUpDown size={20} />
           </p>
 
           <p className="hidden sm:block">Action</p>
@@ -627,9 +642,7 @@ const Transactions = () => {
           </>
         )}
       </div>
-
       {/* page numbers  */}
-
       {!transactionError && totalPages > 1 && (
         <Pagination
           currentPage={currentPage}
@@ -639,7 +652,6 @@ const Transactions = () => {
           loading={transactionsLoading}
         />
       )}
-
       {/* modal section  */}
       {showAddTransaction && (
         <Modal>
@@ -694,7 +706,7 @@ const Transactions = () => {
               <input
                 className="px-2 py-2 rounded-md border"
                 type="text"
-                placeholder="e.g. Grocery"
+                placeholder={selectedType === "Expense" ? " Grocery" : "Salary"}
                 {...register("title", {
                   required: "Title is required",
                   maxLength: {
@@ -828,7 +840,6 @@ const Transactions = () => {
           </form>
         </Modal>
       )}
-
       {transactionDelete && (
         <Modal>
           <div className="px-2 py-4">

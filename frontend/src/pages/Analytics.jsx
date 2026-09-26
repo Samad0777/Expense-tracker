@@ -14,9 +14,12 @@ import {
   YAxis,
   Cell,
 } from "recharts";
+import { Plus, ChartNoAxesCombined } from "lucide-react";
 import useTransaction from "../hook/useTransactions";
 import AnalyticsSkeleton from "../components/Ui/skeletons/AnalyticsSkeleton";
 import ErrorState from "../components/Ui/ErrorState";
+import Button from "../components/Ui/Button";
+import { Link } from "react-router-dom";
 
 const Analytics = () => {
   const {
@@ -74,20 +77,19 @@ const Analytics = () => {
       ? Math.round(totalSavings / monthlyAnalytics.length)
       : 0;
   const savings = totalIncome - totalExpense;
-  const savingsRate =
-    monthlyAnalytics.length > 0 ? (savings / totalIncome) * 100 : 0;
-  const fixed = savingsRate.toFixed(2);
+  const savingsRate = totalIncome > 0 ? (savings / totalIncome) * 100 : null;
+  const fixed = savingsRate !== null ? savingsRate.toFixed(2) : null;
 
-const COLORS = [
-  "#7e22ff",
-  "#24C55F",
-  "#F87419",
-  "#6366F1",
-  "#06b6d4",
-  "#E11D48",
-  "#EAB308",
-  "#EC4899",
-];
+  const COLORS = [
+    "#7e22ff",
+    "#24C55F",
+    "#F87419",
+    "#6366F1",
+    "#06b6d4",
+    "#E11D48",
+    "#EAB308",
+    "#EC4899",
+  ];
 
   if (loading) {
     return <AnalyticsSkeleton />;
@@ -98,10 +100,38 @@ const COLORS = [
       <ErrorState
         message={analyticsError}
         onRetry={() => {
-          getMonthlyAnalytics();
-          getCategoryBreakdownAnalytics();
+          getMonthlyAnalyticsHandler();
+          getCategoryBreakdownAnalyticsHandler();
         }}
       />
+    );
+  }
+
+  if (monthlyAnalytics.length === 0) {
+    return (
+      <div className="h-[70vh] flex items-center justify-center">
+        <div className="flex flex-col items-center text-center max-w-md">
+          <div className="mb-4 p-4 rounded-full bg-primary/10">
+            <ChartNoAxesCombined size={32} className="text-primary" />
+          </div>
+
+          <h2 className="text-xl font-semibold text-text-primary mb-2">
+            No analytics yet
+          </h2>
+
+          <p className="text-text-secondary mb-6">
+            Add your first transaction to start seeing your spending insights
+            and analytics.
+          </p>
+
+          <Link to="/transactions">
+            <Button className="flex items-center gap-2 bg-primary text-white px-4 py-3 rounded-2xl cursor-pointer active:scale-95 hover:bg-primary-hover transition-all duration-200">
+              <Plus size={20} />
+              Add Transaction
+            </Button>
+          </Link>
+        </div>
+      </div>
     );
   }
 
@@ -128,7 +158,7 @@ const COLORS = [
         />
         <Card
           title="Savings Rate"
-          amount={fixed + "%"}
+          amount={fixed !== null ? `${fixed}%` : "N/A"}
           amountColor="text-text-fourth"
         />
       </div>
