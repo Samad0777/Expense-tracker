@@ -7,7 +7,6 @@ export const registerService = async (username, email, password) => {
       email,
       password,
     });
-    console.log(response.data);
     return response.data;
   } catch (err) {
     throw err;
