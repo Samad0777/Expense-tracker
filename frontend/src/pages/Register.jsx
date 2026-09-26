@@ -10,7 +10,6 @@ import FormInput from "../components/Ui/FormInput";
 import logo from "../../public/spendly-favicon.png";
 
 const Register = () => {
-  const [showPassword, setShowPassword] = useState(true);
   const navigate = useNavigate();
   const { registerHandler, loading } = useAuth();
   const {
